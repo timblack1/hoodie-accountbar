@@ -385,7 +385,7 @@ Example:
 
       switch(mode) {
         case 'signin_dialog_button':
-          magic = this.hoodie.account.signIn(this.username, this.password)
+          magic = this.hoodie.account.signIn(this.username, this.password, {moveData:true})
             .done(this.magic_done.bind(this)).fail(this.magic_fail.bind(this));
           break;
         case 'signup_dialog_button':
