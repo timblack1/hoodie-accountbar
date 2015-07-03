@@ -261,9 +261,9 @@ Example:
     is: 'hoodie-accountbar',
     // define element prototype here
     // TODO: Reply to https://twitter.com/addyosmani/status/452848531125313536
-    // TODO: Improve the look of the drop-down arrow by graphically connecting it to the "Sign in/up/out" button.
-    // TODO: Make the dialogs submit when the enter key is pressed
-    // TODO: Make the dialogs focus their first child paper-input
+    // TODO: Improve the look of the drop-down arrow by graphically connecting it to the "Sign in/up/out" button. #3
+    // TODO: Make the dialogs submit when the enter key is pressed #4
+    // TODO: Make the dialogs focus their first child paper-input #5
     ready:function(){
       // Declare the elements to show or hide using this.show_only
       this.elements_to_show_or_hide = [
@@ -408,13 +408,17 @@ Example:
       this.$.signin_dialog.open();
     },
 
+    /**
+     * This function allows this element's JavaScript code to show or hide elements in the template.
+     *
+     * Usage:
+     *
+     *     show_only('signup_bar_hide' [, ...])
+     * 
+     * This function accepts more than one argument.  Each argument must be a variable name used
+     *  in hidden="" attributes in the template.
+     */
     show_only:function(){
-      // This function allows this element's JavaScript code to show or hide elements in the template.
-      // Usage:
-      //  show_only('signup_bar_hide' [, ...])
-      // This function accepts more than one argument.  Each argument must be a variable name used
-      //  in hidden="" attributes in the template.
-
       // Create a true array out of the arguments object
       var args = Array.prototype.slice.call(arguments);
 
@@ -434,8 +438,10 @@ Example:
       var accountbar = Polymer.dom(event.target).parentNode.host.parentNode;
       Polymer.dom(accountbar).querySelector('paper-menu').toggleAttribute('hidden');
     },
+    /**
+     * This function closes all menus
+     */
     hide_menus:function(){
-      // This function closes all menus
       var menus = ['signup_menu', 'signin_menu', 'signedin_menu', 'signin_again_menu'];
       for (var i=0; i<menus.length; i++){
         Polymer.dom(this.$[menus[i]]).setAttribute('hidden', 'hidden');
