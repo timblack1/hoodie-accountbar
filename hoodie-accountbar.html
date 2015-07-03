@@ -1,0 +1,447 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../paper-item/paper-item.html">
+<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../paper-dialog/paper-dialog.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../paper-menu/paper-menu.html">
+<link rel="import" href="../neon-animation/animations/scale-up-animation.html">
+<link rel="import" href="../neon-animation/animations/fade-out-animation.html">
+
+<link rel="import" href="../hoodie-service/hoodie-service.html">
+
+<!--
+A Polymer element providing an accountbar to manage user account actions in Hoodie.
+
+Example:
+
+    <hoodie-accountbar></hoodie-accountbar>
+
+@demo
+-->
+<dom-module id="hoodie-accountbar">
+
+  <style>
+  </style>
+
+  <template>
+
+    <hoodie-service id="hoodie_service" hoodie={{hoodie}}></hoodie-service>
+
+    <!-- Account bar button and menu for each main authentication mode -->
+
+    <div id="signup_bar" hidden="{{signup_bar_hide}}">
+      <paper-button id="signup_button" on-tap="signup" raised>
+        Sign Up
+      </paper-button>
+      <paper-icon-button icon="arrow-drop-down" noink on-tap="toggle_menu"></paper-icon-button>
+      <paper-menu class="menu" id="signup_menu" hidden>
+        <paper-item 
+          id="signin_button_submenu"
+          on-tap="signin">Sign In</paper-item>
+        <paper-item 
+          id="forgot_password_button"
+          hidden
+          on-tap="forgotPassword">Forgot Password</paper-item>
+        <paper-item 
+          id="clear_local_data_button"
+          on-tap="clear_local_data">Clear Local Data</paper-item>
+      </paper-menu>
+    </div>
+
+    <div id="signin_bar" hidden="{{signin_bar_hide}}">
+      <paper-button id="signin_button" on-tap="signin"
+        raised>
+        Sign In
+      </paper-button>
+      <paper-icon-button icon="arrow-drop-down" noink on-tap="toggle_menu"></paper-icon-button>
+      <paper-menu class="menu" id="signin_menu" hidden>
+        <paper-item 
+          id="signup_button_submenu"
+          on-tap="signup">Sign Up</paper-item>
+        <paper-item hidden
+          on-tap="forgotPassword">Forgot Password</paper-item>
+        <paper-item 
+          id="clear_local_data_button"
+          on-tap="clear_local_data">Clear Local Data</paper-item>
+      </paper-menu>
+    </div>
+
+    <div id="signedin_bar" hidden="{{signedin_bar_hide}}">
+      Welcome, <span>{{username}}</span>
+      <paper-button id="signout_button" on-tap="signout"
+        raised>
+        Sign Out
+      </paper-button>
+      <paper-icon-button icon="arrow-drop-down" noink on-tap="toggle_menu"></paper-icon-button>
+      <paper-menu class="menu" id="signedin_menu" hidden>
+        <paper-item hidden
+          on-tap="changePassword">Change Password</paper-item>
+        <paper-item 
+          id="destroy_account"
+          on-tap="destroy_account">Destroy Account</paper-item>
+      </paper-menu>
+    </div>
+
+    <div id="signin_again_bar" hidden="{{signin_again_bar_hide}}">
+      <paper-button id="autherror_button" on-tap="signin"
+        raised>
+         Authentication error. Sign in again
+      </paper-button>
+      <paper-icon-button icon="arrow-drop-down" noink on-tap="toggle_menu"></paper-icon-button>
+      <paper-menu class="menu" id="signin_again_menu" hidden>
+        <paper-item hidden
+          on-tap="changePassword">Change Password</paper-item>
+        <paper-item 
+          on-tap="changeUsername">Change Username</paper-item>
+        <paper-item 
+          on-tap="signout">Sign Out</paper-item>
+      </paper-menu>
+    </div>
+
+    <!-- Dialogs for each menu button -->
+
+    <paper-dialog id="signup_dialog" 
+      role="dialog" 
+      entry-animation="scale-up-animation"
+      exit-animation="fade-out-animation">
+      <div class="layout vertical">
+        <p id="error_message">{{error_message}}</p>
+        <p id="error_details">{{error_details}}</p>
+        <paper-input value="{{ username }}" 
+          label="Username"
+          floatingLabel="true">
+        </paper-input>
+        <paper-input value="{{ password }}" 
+          label="Password"
+          type="password"
+          floatingLabel="true">
+        </paper-input>
+        <paper-input value="{{ password_confirmation }}" 
+          label="Confirm password"
+          type="password"
+          floatingLabel="true">
+        </paper-input>
+      </div>
+      <div class="buttons">
+        <paper-button affirmative
+          id="signup_dialog_button"
+          on-tap="handleSubmit">
+          Sign Up
+        </paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="signin_dialog"
+      role="dialog" 
+      entry-animation="scale-up-animation"
+      exit-animation="fade-out-animation">
+      <div class="layout vertical">
+        <p id="error_message">{{error_message}}</p>
+        <p id="error_details">{{error_details}}</p>
+        <paper-input value="{{ username }}" 
+          label="Username"
+          floatingLabel="true">
+        </paper-input>
+        <paper-input value="{{ password }}" 
+          label="Password"
+          type="password"
+          floatingLabel="true">
+        </paper-input>
+      </div>
+      <div class="buttons">
+        <paper-button affirmative
+          id="signin_dialog_button"
+          on-tap="handleSubmit">
+          Sign In
+        </paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="forgotpassword_dialog"
+      role="dialog" 
+      entry-animation="scale-up-animation"
+      exit-animation="fade-out-animation">
+      <div class="layout vertical">
+        <p id="error_message">{{error_message}}</p>
+        <p id="error_details">{{error_details}}</p>
+        <paper-input value="{{ username }}" 
+          label="Username"
+          floatingLabel="true">
+        </paper-input>
+      </div>
+      <div class="buttons">
+        <paper-button affirmative
+          on-tap="handleSubmit">
+          Email Me A New Password
+        </paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="changeusername_dialog"
+      role="dialog" 
+      entry-animation="scale-up-animation"
+      exit-animation="fade-out-animation">
+      <div class="layout vertical">
+        <p id="error_message">{{error_message}}</p>
+        <p id="error_details">{{error_details}}</p>
+        <paper-input value="{{ new_username }}" 
+          label="New Username"
+          floatingLabel="true">
+        </paper-input>
+        <paper-input value="{{current_password}}"
+          label="Current Password"
+          floatingLabel="true"
+          type="password">
+        </paper-input>
+      </div>
+      <div class="buttons">
+        <paper-button affirmative
+          on-tap="handleSubmit">
+          Change Username
+        </paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="changepassword_dialog"
+      role="dialog" 
+      entry-animation="scale-up-animation"
+      exit-animation="fade-out-animation">
+      <div class="layout vertical">
+        <p id="error_message">{{error_message}}</p>
+        <p id="error_details">{{error_details}}</p>
+        <paper-input value="{{current_password}}"
+          label="Current Password"
+          floatingLabel="true"
+          type="password">
+        </paper-input>
+        <paper-input value="{{new_password}}"
+          label="New Password"
+          floatingLabel="true"
+          type="password">
+        </paper-input>
+      </div>
+      <div class="buttons">
+        <paper-button affirmative on-tap="handleSubmit">
+          Change Password
+        </paper-button>
+      </div>
+    </paper-dialog>
+
+    <paper-dialog id="data_destruction_dialog"
+      role="dialog"
+      backdrop
+      entry-animation="scale-up-animation"
+      exit-animation="fade-out-animation">
+      <div>
+        <p id="error_message">{{error_message}}</p>
+        <p>{{destroy_data_question}}</p>
+      </div>
+      <div class="buttons">
+        <paper-button dialog-dismiss>
+          No
+        </paper-button>
+        <paper-button dialog-confirm
+          id="destroy_data_button"
+          on-tap="destroy_data_confirmed">
+          Yes
+        </paper-button>
+      </div>
+    </paper-dialog>
+
+  </template>
+
+</dom-module>
+
+<script>
+
+  'use strict';
+  Polymer({
+    is: 'hoodie-accountbar',
+    // define element prototype here
+    // TODO: Reply to https://twitter.com/addyosmani/status/452848531125313536
+    // TODO: Improve the look of the drop-down arrow by graphically connecting it to the "Sign in/up/out" button.
+    // TODO: Make the dialogs submit when the enter key is pressed
+    // TODO: Make the dialogs focus their first child paper-input
+    ready:function(){
+      // Declare the elements to show or hide using this.show_only
+      this.elements_to_show_or_hide = [
+        'signup_bar',
+        'signin_bar',
+        'signedin_bar',
+        'signin_again_bar'
+      ];
+      // Set the default bar to show until we find out we need another
+      this.show_only('signup_bar');
+
+      this.hoodie = this.$.hoodie_service.hoodie
+      this.username = this.hoodie.account.username;
+      // Subscribe to (listen for) Hoodie account events
+      this.hoodie.account.on('signup changeusername signin reauthenticated', this.handleUserAuthenticated.bind(this));
+      this.hoodie.account.on('signout', this.handleUserUnauthenticated.bind(this));
+      this.hoodie.on('account:error:unauthenticated remote:error:unauthenticated', this.handleUserAuthenticationError.bind(this));
+      // Check to see whether this user is authenticated
+      this.hoodie.account.authenticate().then(this.handleUserAuthenticated.bind(this), this.handleUserUnauthenticated.bind(this));
+    },
+    // Display the dialog with input fields for logging in, etc.
+    signup:function(event){
+      this.hide_menus();
+      this.$.signup_dialog.open();
+      // TODO: Focus username input
+    },
+    signin:function(event){
+      this.hide_menus();
+      this.$.signin_dialog.open();
+    },
+    forgotPassword:function(event){
+      this.hide_menus();
+      this.$.forgotpassword_dialog.open();
+    },
+    changePassword:function(event){
+      this.hide_menus();
+      this.$.changepassword_dialog.open();
+    },
+    changeUsername:function(event){
+      this.hide_menus();
+      this.$.changeusername_dialog.open();
+    },
+    signout:function(event){
+      var thiz = this;
+      this.hoodie.account.signOut()
+        .done(function(){
+          thiz.show_only('signup_bar');
+          thiz.username = '';    
+          console.log('Signed out. Username is now: ' + thiz.hoodie.account.username);
+        })
+        .fail(function(error){
+          console.log('Could not sign out: ', error)
+        });
+    },
+    destroy_account:function(){
+      this.hide_menus();
+      this.destroy_data_question = 'Are you sure you want to destroy your account?'
+      this.$.data_destruction_dialog.open();
+    },
+    clear_local_data:function(){
+      this.hide_menus();
+      this.destroy_data_question = 'Are you sure you want to clear your local data from your browser?'
+      this.$.data_destruction_dialog.open();
+    },
+    destroy_data_confirmed:function(){
+      // Note: apparently .destroy() works for the case in which the user is not signed in in this way:
+      //  Hoodie destroys the local data, but does not delete the account on the server.  So it works for both
+      //  cases:  both signed in and signed out.
+      localStorage.removeItem('has_signed_in_through_hoodie');
+      this.hoodie.account.destroy();
+    },
+    // Report on authentication
+    handleUserAuthenticated: function() {
+      // Report to the user that the user has been authenticated
+      this.show_only('signedin_bar');
+      localStorage['has_signed_in_through_hoodie'] = 'true';
+    },
+    handleUserUnauthenticated: function() {
+      if (!this.hoodie.account.username) {
+        this.handleUserAuthenticationError();
+      }
+      if (localStorage['has_signed_in_through_hoodie'] === 'true'){
+        // Check localstorage to see if this browser has been authenticated before,
+        //  and offer "Sign In" as the default option accordingly.
+        this.show_only('signin_bar');
+      }else{
+        // Report to the user that the user has not been authenticated
+        this.show_only('signup_bar');
+      }
+      // Don't display username, since user is not signed in
+      this.username = '';
+    },
+    handleUserAuthenticationError: function() {
+      // Report to the user that there was an error authenticating the user
+      this.show_only('signin_again_bar');
+    },
+    handleSubmit:function(event) {
+      var magic;
+      // Close all dialogs
+      var dialogs = ['signup_dialog', 'signin_dialog', 'forgotpassword_dialog', 'changepassword_dialog',
+        'changeusername_dialog'];
+      for (var i=0; i<dialogs.length; i++){
+        this.$[dialogs[i]].close();
+      }
+
+      // Get the id of the button that was clicked
+      var mode = Polymer.dom(event.target).parentNode.host.id;
+
+      switch(mode) {
+        case 'signin_dialog_button':
+          magic = this.hoodie.account.signIn(this.username, this.password)
+            .done(this.magic_done.bind(this)).fail(this.magic_fail.bind(this));
+          break;
+        case 'signup_dialog_button':
+          magic = this.hoodie.account.signUp(this.username, this.password)
+            .done(this.magic_done.bind(this)).fail(this.magic_fail.bind(this));
+          break;
+        case 'changepassword_dialog_button':
+          magic = this.hoodie.account.changePassword(null, this.new_password)
+            .done(this.magic_done.bind(this)).fail(this.magic_fail.bind(this));
+          break;
+        case 'changeusername_dialog_button':
+          magic = this.hoodie.account.changeUsername(this.current_password, this.new_username)
+            .done(this.magic_done.bind(this)).fail(this.magic_fail.bind(this));
+          break;
+        case 'forgotpassword_dialog_button':
+          magic = this.hoodie.account.resetPassword(this.email)
+          .done(function() {
+            alert('Sending new password to ' + this.email);
+          }).fail(this.magic_fail.bind(this));
+          break;
+      };
+    },
+    magic_done:function(){
+      this.error_message = '';
+      this.error_details = '';
+      this.show_only('signedin_bar');
+    },
+    magic_fail:function(error){
+      this.error_message = 'Authentication failed.  Please sign in again.';
+      this.error_details = 'Error: ' + error.status + ' - ' + error.name + '. Reason: ' + error.message;
+      this.$.signin_dialog.open();
+    },
+
+    show_only:function(){
+      // This function allows this element's JavaScript code to show or hide elements in the template.
+      // Usage:
+      //  show_only('signup_bar_hide' [, ...])
+      // This function accepts more than one argument.  Each argument must be a variable name used
+      //  in hidden="" attributes in the template.
+
+      // Create a true array out of the arguments object
+      var args = Array.prototype.slice.call(arguments);
+
+      // Interate through elements_to_show_or_hide
+      for (var i=0; i<this.elements_to_show_or_hide.length; i++){
+        // iterate through arguments
+        if (args.indexOf(this.elements_to_show_or_hide[i]) !== -1){
+          // In args, so show
+          this[this.elements_to_show_or_hide[i] + '_hide'] = false;
+        }else{
+          // Else hide
+          this[this.elements_to_show_or_hide[i] + '_hide'] = true;
+        }
+      }
+    },
+    toggle_menu:function(event){
+      var accountbar = Polymer.dom(event.target).parentNode.host.parentNode;
+      Polymer.dom(accountbar).querySelector('paper-menu').toggleAttribute('hidden');
+    },
+    hide_menus:function(){
+      // This function closes all menus
+      var menus = ['signup_menu', 'signin_menu', 'signedin_menu', 'signin_again_menu'];
+      for (var i=0; i<menus.length; i++){
+        Polymer.dom(this.$[menus[i]]).setAttribute('hidden', 'hidden');
+      }
+    }
+
+  });
+
+</script>

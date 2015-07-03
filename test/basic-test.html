@@ -1,0 +1,399 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../web-component-tester/browser.js"></script>
+
+    <!-- Step 1: import the element to test -->
+    <link rel="import" href="../hoodie-accountbar.html">
+  </head>
+  <body>
+
+    <!-- You can use the document as a place to set up your fixtures. -->
+    <hoodie-accountbar></hoodie-accountbar>
+
+    <script>
+    'use strict';
+      
+    // TODO: Test each mode's effects on authentication, data, UI
+    /*
+    Construct state in setup(), then click the following button:
+
+    Signed-out state, browser has not signed in
+      Sign Up
+        Dialog displays
+        Dialog contains
+          Username
+          Password
+          Confirm Password
+          "Sign Up" button
+        Auth function()
+    Signed-out state, browser has signed in
+      "Sign In" button displays
+    Signed-out state
+      Sign In
+        Dialog displays
+        Dialog contains
+          Username
+          Password
+          "Sign In" button
+        Auth function()
+      Forgot Password
+        Dialog displays
+        Dialog contains
+          Username
+          "Email Me A New Password" button
+        Password changed
+      Clear local data
+        Verify local data is gone
+    Signed-in state
+      Change Username
+      Change Password
+      Destroy Account
+        Verify account is gone
+      Sign Out
+        "Sign In" button displays
+        User not authenticated
+        Welcome message doesn't display
+    State: Sign in with wrong credentials, or sign up with existing credentials
+      Authentication error. Sign in again
+
+    Auth function()
+      User authenticated
+        Button changes to "Sign Out"
+        Welcome message displays username
+      User not authenticated (empty or nonexistent username or password)
+        Button changes to "Authentication error. Sign in again"
+        Welcome message does not display
+
+    */
+
+    // Configure defaults
+    var username = 'test'
+    var password = 'pw'
+    hoodie = document.querySelector('body /deep/ hoodie-accountbar').hoodie;
+
+    // Utility function
+    function delete_localstorage_signedin_record(){
+      // Remove the record that the user has signed in before through Hoodie.
+      localStorage.removeItem('has_signed_in_through_hoodie')
+    }
+
+
+    suite('Signed-out state, browser has never signed in', function(){
+
+      setup('Before each test, destroy test user account and delete localstorage record', function destroy_account_and_delete_localstorage_record(done){
+        // TODO: This works if the user is signed in.  It doesn't work if the
+        //  user account has already been destroyed in CouchDB.  Then it returns
+        //  a 401 Unauthorized error:  "Name or password is incorrect."
+        if (typeof hoodie.account.username !== 'undefined'){
+          // User is signed in, so destroy account and delete localStorage signed in record
+          hoodie.account.destroy()
+          .done(delete_localstorage_signedin_record())
+          .done(flush(done));
+        }else{
+          // User is not signed in, so attempt to sign in as test user
+          hoodie.account.signIn(username, password)
+          // If successful, destroy account and delete localStorage signed in record
+          .done(hoodie.account.destroy())
+          .done(delete_localstorage_signedin_record())
+          // Wait for UI to update
+          .done(flush(done))
+          // Else wait for UI to update
+          .fail(flush(done))
+        }
+      })
+
+      test('should display the "Sign Up" button', function() {
+        var el = document.querySelector('hoodie-accountbar');
+        var button = el.shadowRoot.querySelector('#signup_button');
+        assert.equal(getComputedStyle(button).display, 'inline-block');
+      })
+
+      test('should display the "Sign In," "Forgot Password," and "Clear local data" menu items', function() {
+        var el = document.querySelector('hoodie-accountbar');
+        ['signin_button_submenu', 'forgot_password_button', 'clear_local_data_button'].forEach(function(id){
+          var button = el.shadowRoot.querySelector('#' + id);
+          assert.equal(getComputedStyle(button).display, 'block');
+        })
+      })
+
+      test('should let you sign up', function(done) {
+        /* Test that:
+          Dialog displays
+          Dialog contains
+            Username
+            Password
+            Confirm Password
+            "Sign Up" button
+          Auth function()
+        */
+        var el = document.querySelector('body /deep/ hoodie-accountbar');
+        // Tap button to open dialog
+        var button = el.shadowRoot.querySelector('#signup_button')
+        button.fire('tap')
+        var dialog = document.querySelector('body /deep/ #login_dialog');
+        dialog.addEventListener('core-overlay-open-completed', function dialog_opened_handler(event){
+          dialog.removeEventListener(event.type, dialog_opened_handler)
+          // Verify dialog displays & contains correct elements
+          assert.equal(getComputedStyle(dialog.querySelector('#username')).display, 'block');
+          assert.equal(getComputedStyle(dialog.querySelector('#password')).display, 'inline-block');
+          assert.equal(getComputedStyle(dialog.querySelector('#password_confirmation')).display, 'inline-block');
+          assert.equal(getComputedStyle(dialog.querySelector('#signup_dialog_button')).display, 'block');
+          // Verify that you can sign up
+          dialog.querySelector('#username').value = username
+          dialog.querySelector('#password').value = password
+          dialog.querySelector('#password_confirmation').value = password
+          // Flush events to permit paper-inputs to register their new values
+          flush(function(){
+            // Sign up
+            dialog.querySelector('#signup_dialog_button').fire('tap')
+            // Wait for the dialog to close
+            dialog.addEventListener('core-overlay-close-completed', function dialog_closed_handler(event){
+              dialog.removeEventListener(event.type, dialog_closed_handler)
+              flush(function(){
+                // Verify the username is displayed
+                assert.equal(document.querySelector('body /deep/ #hoodie_username').textContent, "Welcome, " + username);
+                // Verify the signout button is displayed
+                el.addEventListener('signedin', function signedin_handler(event){
+                  el.removeEventListener(event.type, signedin_handler)
+                  flush(function(){
+                    // TODO: Verify the "Sign out" button is displayed
+                    assert.equal(getComputedStyle(document.querySelector('body /deep/ #signout_button')).display, "inline-block");
+                    assert.equal(document.querySelector('body /deep/ #signout_button').textContent.trim(), "Sign Out");
+                    done();
+                  })
+                })
+              })
+            })
+          })
+        })
+
+      })
+
+    })
+
+    suite('Signed-out state, browser has signed in before', function(){
+
+      setup('Before each test, signout and set localstorage record that this browser has signed in', function(done){
+        var hab = document.querySelector('body /deep/ hoodie-accountbar')
+        hoodie = hab.hoodie;
+        hab.addEventListener('signedout', function signedout_handler(event){
+          hab.removeEventListener(event.type, signedout_handler)
+          // TODO: Start here.  This never gets called.
+          //  Is the event being fired?
+          debugger;
+          done();
+        })
+        // Signout in case a user is signed in
+        hoodie.account.signOut()
+        // Wait for UI to update
+        .done(flush(function(){
+          localStorage['has_signed_in_through_hoodie'] = 'true'
+        }));
+      })
+
+      teardown('After each test, remove localstorage record that this browser has signed in', function(){
+        delete_localstorage_signedin_record()
+      })
+
+      test('should display the "Sign In" button', function() {
+        var el = document.querySelector('body /deep/ hoodie-accountbar');
+        assert.equal(getComputedStyle(el.shadowRoot.querySelector('#signin_button')).display, 'block')
+      })
+    
+    })
+
+    suite('Signed-out state, browser has or has not signed in', function(){
+
+      setup('Before each test, signout', function signout(done){
+        hoodie = document.querySelector('body /deep/ hoodie-accountbar').hoodie;
+        // Signout in case a user is signed in
+        hoodie.account.signOut()
+        // Wait for UI to update
+        .done(flush(done));
+      })
+
+      test('should let you sign in', function(done) {
+        /*
+        Test that:
+        Dialog displays
+        Dialog contains
+          Username
+          Password
+          "Sign In" button
+        */
+        var el = document.querySelector('body /deep/ hoodie-accountbar');
+        // Click to open drop-down menu
+        var menu_button = el.shadowRoot.querySelector('#menu-button')
+        menu_button.fire('tap')
+        // Click menu item to open login dialog
+        var dropdown = document.querySelector('body /deep/ .dropdown')
+        dropdown.addEventListener('core-overlay-open-completed', function dropdown_opened_handler(event){
+          dropdown.removeEventListener(event.type, dropdown_opened_handler)
+          var button = document.querySelector('body /deep/ #signin_button');
+          button.fire('tap');
+          var dialog = document.querySelector('body /deep/ #login_dialog');
+          dialog.addEventListener('core-overlay-open-completed', function dialog_opened_handler(event){
+            dialog.removeEventListener(event.type, dialog_opened_handler)
+            assert.equal(getComputedStyle(dialog.querySelector('#username')).display, 'block');
+            assert.equal(getComputedStyle(dialog.querySelector('#password')).display, 'inline-block');
+            assert.equal(getComputedStyle(dialog.querySelector('#signin_dialog_button')).display, 'block');
+            // Verify that you can sign in
+            dialog.querySelector('#username').value = username
+            dialog.querySelector('#password').value = password
+            // Flush events to permit paper-inputs to register their new values
+            flush(function(){
+              // Sign in
+              dialog.querySelector('#signin_dialog_button').fire('tap')
+              // Wait for the dialog to close
+              dialog.addEventListener('core-overlay-close-completed', function dialog_closed_handler(event){
+                dialog.removeEventListener(event.type, dialog_closed_handler)
+                flush(function(){
+                  // Verify the username is displayed
+                  assert.equal(document.querySelector('body /deep/ #hoodie_username').textContent, "Welcome, " + username);
+                  // Verify the signout button is displayed
+//                   document.querySelector('body /deep/ hoodie-accountbar')
+                  el.addEventListener('signedin', function signedin_handler(event){
+                    el.removeEventListener(event.type, signedin_handler)
+                    debugger;
+                    flush(function(){
+                      // TODO: Verify the "Sign out" button is displayed
+                      assert.equal(getComputedStyle(document.querySelector('body /deep/ #signout_button')).display, "inline-block");
+                      assert.equal(document.querySelector('body /deep/ #signout_button').textContent.trim(), "Sign Out");
+                      done();
+                    })
+                  })
+                })
+              })
+            })
+          })
+        })
+      })
+
+    });
+
+    // TODO:  When you sign in, but authentication fails, the dialog should not close.
+
+    suite('Signed-out state', function(){
+      // TODO: Flesh out the tests
+
+      setup('Before each test, sign out', function(done){
+        done();
+      })
+
+      test('should display the "Sign Up" button', function() {
+        assert.equal(1,1);
+      })
+
+      test('should allow you to sign in', function() {
+        /*
+        Sign In
+          Dialog displays
+          Dialog contains
+            Username
+            Password
+            "Sign In" button
+          Auth function()
+        */
+        assert.equal(1,1);
+      })
+
+      test('should allow you to sign in', function() {
+        /*
+        Sign In
+          Dialog displays
+          Dialog contains
+            Username
+            Password
+            "Sign In" button
+          Auth function()
+        */
+        assert.equal(1,1);
+      })
+
+      test('should allow you to get a new password', function() {
+        /*
+        Forgot Password
+          Dialog displays
+          Dialog contains
+            Username
+            "Email Me A New Password" button
+          Password changed
+        */
+        assert.equal(1,1);
+      })
+
+      test('should allow you to clear local data', function() {
+        /*
+        Clear local data
+          Verify account is gone
+        */
+        assert.equal(1,1);
+      })
+
+    })
+
+    suite('Signed-in state', function(){
+      // TODO: Flesh out the tests
+
+      setup('Before each test, sign in', function(done){
+        done();
+      })
+
+      test('should allow you to change your username', function() {
+        /*
+        Change Username
+        */
+        assert.equal(1,1);
+      })
+    
+      test('should allow you to change your password', function() {
+        /*
+        Change Password
+        */
+        assert.equal(1,1);
+      })
+    
+      test('should allow you to destroy your account', function() {
+        /*
+        Destroy Account
+        */
+        assert.equal(1,1);
+      })
+    
+      test('should allow you to sign out', function() {
+        /*
+        Sign Out
+          "Sign In" button displays
+          User not authenticated
+          Welcome message doesn't display
+        */
+        assert.equal(1,1);
+      })
+    
+    })
+
+    suite('State: Sign in with wrong credentials, or sign up with existing credentials', function(){
+      // TODO: Flesh out the tests
+
+      setup('Before each test, sign out', function(done){
+        done();
+      })
+
+      test('should display an authentication error and prompt you to sign in again', function() {
+        /*
+        Authentication error. Sign in again
+        */
+        assert.equal(1,1);
+      })
+    
+    })
+
+    </script>
+
+  </body>
+</html>
