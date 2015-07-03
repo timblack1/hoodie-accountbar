@@ -385,6 +385,8 @@ Example:
 
       switch(mode) {
         case 'signin_dialog_button':
+          // Note that we have configured `signIn()` to use `{moveData:true}` so it saves 
+          //  existing data when the user signs in.
           magic = this.hoodie.account.signIn(this.username, this.password, {moveData:true})
             .done(this.magic_done.bind(this)).fail(this.magic_fail.bind(this));
           break;
