@@ -371,6 +371,10 @@ Example:
       // Report to the user that there was an error authenticating the user
       this.show_only('signin_again_bar');
     },
+    /**
+     * Note that we have configured `signIn()` to use `{moveData:true}` so it saves 
+     * existing data when the user signs in.
+     */
     handleSubmit:function(event) {
       var magic;
       // Close all dialogs
@@ -385,8 +389,6 @@ Example:
 
       switch(mode) {
         case 'signin_dialog_button':
-          // Note that we have configured `signIn()` to use `{moveData:true}` so it saves 
-          //  existing data when the user signs in.
           magic = this.hoodie.account.signIn(this.username, this.password, {moveData:true})
             .done(this.magic_done.bind(this)).fail(this.magic_fail.bind(this));
           break;
