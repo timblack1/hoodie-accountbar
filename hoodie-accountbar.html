@@ -20,9 +20,12 @@ Example:
 
 @demo
 -->
-<dom-module id="hoodie-accountbar">
+<dom-module id="hoodie-accountbar" hoodie={{hoodie}}>
 
   <style>
+  :root {
+    --paper-dialog-background-color: #fff;
+  }
   </style>
 
   <template>
@@ -259,6 +262,14 @@ Example:
   'use strict';
   Polymer({
     is: 'hoodie-accountbar',
+    properties:{
+      /* We define hoodie here so it can be provided to siblings of this element. */
+      hoodie: {
+        type: Object,
+        notify: true,
+        reflectToAttribute: true
+      },
+    },
     // define element prototype here
     // TODO: Reply to https://twitter.com/addyosmani/status/452848531125313536
     // TODO: Improve the look of the drop-down arrow by graphically connecting it to the "Sign in/up/out" button. #3
