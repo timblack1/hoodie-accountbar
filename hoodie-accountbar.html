@@ -275,7 +275,8 @@ Example:
     // TODO: Improve the look of the drop-down arrow by graphically connecting it to the "Sign in/up/out" button. #3
     // TODO: Make the dialogs submit when the enter key is pressed #4
     // TODO: Make the dialogs focus their first child paper-input #5
-    ready:function(){
+    attached:function(){
+
       // Declare the elements to show or hide using this.show_only
       this.elements_to_show_or_hide = [
         'signup_bar',
@@ -373,12 +374,7 @@ Example:
     },
     handleSubmit:function(event) {
       var magic;
-      // Close all dialogs
-      var dialogs = ['signup_dialog', 'signin_dialog', 'forgotpassword_dialog', 'changepassword_dialog',
-        'changeusername_dialog'];
-      for (var i=0; i<dialogs.length; i++){
-        this.$[dialogs[i]].close();
-      }
+      this.close_all_dialogs();
 
       // Get the id of the button that was clicked
       var mode = Polymer.dom(event.target).parentNode.host.id;
@@ -456,6 +452,12 @@ Example:
       var menus = ['signup_menu', 'signin_menu', 'signedin_menu', 'signin_again_menu'];
       for (var i=0; i<menus.length; i++){
         Polymer.dom(this.$[menus[i]]).setAttribute('hidden', 'hidden');
+      }
+    },
+    close_all_dialogs:function(){
+      var dialogs = ['signup_dialog', 'signin_dialog', 'forgotpassword_dialog', 'changeusername_dialog', 'changepassword_dialog', 'data_destruction_dialog'];
+      for (var i=0; i<dialogs.length; i++){
+        Polymer.dom(this.$[dialogs[i]]).setAttribute('hidden', 'hidden');
       }
     }
 
