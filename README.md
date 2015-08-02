@@ -6,3 +6,11 @@ This element is still a work in progress.  Code for all of the functionality is 
 but not all of it is working correctly yet, as is described in the open issues on GitHub.
 
 Online docs & demo are at http://timblack1.github.io/hoodie-accountbar/.
+
+# Development
+
+Run the following commands to set up a development environment to improve hoodie-accountbar:
+
+   $ bower install && npm install
+   $ gulp serve
+
