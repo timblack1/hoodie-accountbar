@@ -91,8 +91,6 @@ gulp.task('serve', ['hoodie_start'], function () {
     server: {
       baseDir: ['.'],
       routes: {
-        // TODO: Start here.  Figure out how to kill the service-worker, then 
-        //  get hoodie-service to load from bower_components.
         '/components/hoodie-accountbar': '.',
         '/components': 'bower_components',
       },
