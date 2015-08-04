@@ -14,3 +14,4 @@ Run the following commands to set up a development environment to improve hoodie
    $ bower install && npm install
    $ gulp serve
 
+Navigate to http://localhost:3000/components/hoodie-accountbar/ to see the component's docs and demo.
