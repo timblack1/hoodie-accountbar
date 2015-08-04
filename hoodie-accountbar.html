@@ -261,6 +261,7 @@ Example:
 <script>
 
   'use strict';
+  
   Polymer({
     is: 'hoodie-accountbar',
     properties:{
@@ -288,7 +289,7 @@ Example:
       // Set the default bar to show until we find out we need another
       this.show_only('signup_bar');
 
-      this.hoodie = this.$.hoodie_service.hoodie
+      this.hoodie = this.$.hoodie_service.hoodie;
       this.username = this.hoodie.account.username;
       // Subscribe to (listen for) Hoodie account events
       this.hoodie.account.on('signup changeusername signin reauthenticated', this.handleUserAuthenticated.bind(this));
@@ -328,17 +329,17 @@ Example:
           console.log('Signed out. Username is now: ' + thiz.hoodie.account.username);
         })
         .fail(function(error){
-          console.log('Could not sign out: ', error)
+          console.log('Could not sign out: ', error);
         });
     },
     destroy_account:function(){
       this.hide_menus();
-      this.destroy_data_question = 'Are you sure you want to destroy your account?'
+      this.destroy_data_question = 'Are you sure you want to destroy your account?';
       this.$.data_destruction_dialog.open();
     },
     clear_local_data:function(){
       this.hide_menus();
-      this.destroy_data_question = 'Are you sure you want to clear your local data from your browser?'
+      this.destroy_data_question = 'Are you sure you want to clear your local data from your browser?';
       this.$.data_destruction_dialog.open();
     },
     destroy_data_confirmed:function(){
@@ -403,7 +404,7 @@ Example:
             alert('Sending new password to ' + this.email);
           }).fail(this.magic_fail.bind(this));
           break;
-      };
+      }
     },
     magic_done:function(){
       this.error_message = '';
