@@ -11,7 +11,7 @@ Online docs & demo are at http://timblack1.github.io/hoodie-accountbar/.
 
 Run the following commands to set up a development environment to improve hoodie-accountbar:
 
-   $ bower install && npm install
-   $ gulp serve
+    $ bower install && npm install
+    $ gulp serve
 
 Navigate to http://localhost:3000/components/hoodie-accountbar/ to see the component's docs and demo.
