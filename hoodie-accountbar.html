@@ -265,12 +265,6 @@ Example:
   Polymer({
     is: 'hoodie-accountbar',
     properties:{
-      /* We define hoodie here so it can be provided to siblings of this element. */
-      hoodie: {
-        type: Object,
-        notify: true,
-        reflectToAttribute: true
-      },
     },
     // define element prototype here
     // TODO: Reply to https://twitter.com/addyosmani/status/452848531125313536
@@ -379,7 +373,8 @@ Example:
       this.close_all_dialogs();
 
       // Get the id of the button that was clicked
-      var mode = Polymer.dom(event.target).parentNode.host.id;
+//       var mode = Polymer.dom(event.target).parentNode.host.id;
+      var mode = event.target.id;
 
       switch(mode) {
         case 'signin_dialog_button':
