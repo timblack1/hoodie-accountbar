@@ -6,6 +6,9 @@
 
     <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
     <script src="../../web-component-tester/browser.js"></script>
+    <script src="../../bower_components/test-fixture/test-fixture-mocha.js"></script>
+    <link rel="import" href="../../bower_components/test-fixture/test-fixture.html">
+
 
     <!-- Step 1: import the element to test -->
     <link rel="import" href="../hoodie-accountbar.html">
@@ -13,7 +16,9 @@
   <body>
 
     <!-- You can use the document as a place to set up your fixtures. -->
-    <hoodie-accountbar></hoodie-accountbar>
+    <test-fixture id="basic">
+        <hoodie-accountbar></hoodie-accountbar>
+    </test-fixture>
 
     <script>
     'use strict';
@@ -72,9 +77,9 @@
     */
 
     // Configure defaults
-    var username = 'test'
-    var password = 'pw'
-    hoodie = document.querySelector('body /deep/ hoodie-accountbar').hoodie;
+    var username = 'test';
+    var password = 'pw';
+    var hoodie = document.querySelector('body /deep/ hoodie-accountbar').hoodie;
 
     // Utility function
     function delete_localstorage_signedin_record(){
@@ -103,11 +108,13 @@
           // Wait for UI to update
           .done(flush(done))
           // Else wait for UI to update
-          .fail(flush(done))
+          .fail(flush(done));
         }
+        var accountbar = fixture('basic');
       })
 
       test('should display the "Sign Up" button', function() {
+        debugger;
         var el = document.querySelector('hoodie-accountbar');
         var button = el.shadowRoot.querySelector('#signup_button');
         assert.equal(getComputedStyle(button).display, 'inline-block');
