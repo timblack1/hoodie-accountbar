@@ -46,7 +46,6 @@ Example:
           on-tap="signin">Sign In</paper-item>
         <paper-item 
           id="forgot_password_button"
-          hidden
           on-tap="forgotPassword">Forgot Password</paper-item>
         <paper-item 
           id="clear_local_data_button"
@@ -64,7 +63,7 @@ Example:
         <paper-item 
           id="signup_button_submenu"
           on-tap="signup">Sign Up</paper-item>
-        <paper-item hidden
+        <paper-item
           on-tap="forgotPassword">Forgot Password</paper-item>
         <paper-item 
           id="clear_local_data_button"
@@ -80,7 +79,7 @@ Example:
       </paper-button>
       <paper-icon-button icon="arrow-drop-down" noink on-tap="toggle_menu"></paper-icon-button>
       <paper-menu class="menu" id="signedin_menu" hidden>
-        <paper-item hidden
+        <paper-item
           on-tap="changePassword">Change Password</paper-item>
         <paper-item 
           id="destroy_account"
@@ -95,7 +94,7 @@ Example:
       </paper-button>
       <paper-icon-button icon="arrow-drop-down" noink on-tap="toggle_menu"></paper-icon-button>
       <paper-menu class="menu" id="signin_again_menu" hidden>
-        <paper-item hidden
+        <paper-item
           on-tap="changePassword">Change Password</paper-item>
         <paper-item 
           on-tap="changeUsername">Change Username</paper-item>
@@ -114,15 +113,18 @@ Example:
         <p id="error_message">{{error_message}}</p>
         <p id="error_details">{{error_details}}</p>
         <paper-input value="{{ username }}" 
+          id="username"
           label="Username"
           floatingLabel="true">
         </paper-input>
         <paper-input value="{{ password }}" 
+          id="password"
           label="Password"
           type="password"
           floatingLabel="true">
         </paper-input>
         <paper-input value="{{ password_confirmation }}" 
+          id="password_confirmation"
           label="Confirm password"
           type="password"
           floatingLabel="true">

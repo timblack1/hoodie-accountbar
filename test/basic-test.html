@@ -5,15 +5,21 @@
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
 
     <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <link rel="import" href="../../polymer/polymer.html">
     <script src="../../web-component-tester/browser.js"></script>
+    <script src="../../test-fixture/test-fixture-mocha.js"></script>
+    <link rel="import" href="../../test-fixture/test-fixture.html">
 
-    <!-- Step 1: import the element to test -->
     <link rel="import" href="../hoodie-accountbar.html">
+
   </head>
   <body>
 
-    <!-- You can use the document as a place to set up your fixtures. -->
-    <hoodie-accountbar></hoodie-accountbar>
+    <test-fixture id="basic">
+      <template>
+        <hoodie-accountbar></hoodie-accountbar>
+      </template>
+    </test-fixture>
 
     <script>
     'use strict';
@@ -72,9 +78,10 @@
     */
 
     // Configure defaults
-    var username = 'test'
-    var password = 'pw'
-    hoodie = document.querySelector('body /deep/ hoodie-accountbar').hoodie;
+    var username = 'test';
+    var password = 'pw';
+    var hoodie;
+    var accountbar;
 
     // Utility function
     function delete_localstorage_signedin_record(){
@@ -86,6 +93,8 @@
     suite('Signed-out state, browser has never signed in', function(){
 
       setup('Before each test, destroy test user account and delete localstorage record', function destroy_account_and_delete_localstorage_record(done){
+        accountbar = fixture('basic');
+        hoodie = accountbar.hoodie;
         // TODO: This works if the user is signed in.  It doesn't work if the
         //  user account has already been destroyed in CouchDB.  Then it returns
         //  a 401 Unauthorized error:  "Name or password is incorrect."
@@ -103,22 +112,19 @@
           // Wait for UI to update
           .done(flush(done))
           // Else wait for UI to update
-          .fail(flush(done))
+          .fail(flush(done));
         }
       })
 
       test('should display the "Sign Up" button', function() {
-        var el = document.querySelector('hoodie-accountbar');
-        var button = el.shadowRoot.querySelector('#signup_button');
+        var button = accountbar.querySelector('#signup_button');
         assert.equal(getComputedStyle(button).display, 'inline-block');
       })
 
       test('should display the "Sign In," "Forgot Password," and "Clear local data" menu items', function() {
-        var el = document.querySelector('hoodie-accountbar');
-        ['signin_button_submenu', 'forgot_password_button', 'clear_local_data_button'].forEach(function(id){
-          var button = el.shadowRoot.querySelector('#' + id);
-          assert.equal(getComputedStyle(button).display, 'block');
-        })
+        assert.equal(getComputedStyle(accountbar.querySelector('#signin_button_submenu')).display, 'flex');
+        assert.equal(getComputedStyle(accountbar.querySelector('#forgot_password_button')).display, 'flex');
+        assert.equal(getComputedStyle(accountbar.querySelector('#clear_local_data_button')).display, 'flex');
       })
 
       test('should let you sign up', function(done) {
@@ -131,50 +137,51 @@
             "Sign Up" button
           Auth function()
         */
-        var el = document.querySelector('body /deep/ hoodie-accountbar');
         // Tap button to open dialog
-        var button = el.shadowRoot.querySelector('#signup_button')
-        button.fire('tap')
-        var dialog = document.querySelector('body /deep/ #login_dialog');
-        dialog.addEventListener('core-overlay-open-completed', function dialog_opened_handler(event){
-          dialog.removeEventListener(event.type, dialog_opened_handler)
+        var button = accountbar.querySelector('#signup_button');
+        button.fire('tap');
+        var dialog = accountbar.$.signup_dialog;
+        dialog.addEventListener('iron-overlay-opened', function dialog_opened_handler(event){
+          dialog.removeEventListener(event.type, dialog_opened_handler);
           // Verify dialog displays & contains correct elements
           assert.equal(getComputedStyle(dialog.querySelector('#username')).display, 'block');
-          assert.equal(getComputedStyle(dialog.querySelector('#password')).display, 'inline-block');
-          assert.equal(getComputedStyle(dialog.querySelector('#password_confirmation')).display, 'inline-block');
+          assert.equal(getComputedStyle(dialog.querySelector('#password')).display, 'block');
+          assert.equal(getComputedStyle(dialog.querySelector('#password_confirmation')).display, 'block');
           assert.equal(getComputedStyle(dialog.querySelector('#signup_dialog_button')).display, 'block');
           // Verify that you can sign up
-          dialog.querySelector('#username').value = username
-          dialog.querySelector('#password').value = password
-          dialog.querySelector('#password_confirmation').value = password
+          dialog.querySelector('#username').value = username;
+          dialog.querySelector('#password').value = password;
+          dialog.querySelector('#password_confirmation').value = password;
           // Flush events to permit paper-inputs to register their new values
           flush(function(){
-            // Sign up
-            dialog.querySelector('#signup_dialog_button').fire('tap')
             // Wait for the dialog to close
-            dialog.addEventListener('core-overlay-close-completed', function dialog_closed_handler(event){
-              dialog.removeEventListener(event.type, dialog_closed_handler)
+            dialog.addEventListener('iron-overlay-closed', function dialog_closed_handler(event){
+              dialog.removeEventListener(event.type, dialog_closed_handler);
+              // TODO: Start here.  Why isn't the event above firing or being detected here?
+              debugger;
               flush(function(){
                 // Verify the username is displayed
                 assert.equal(document.querySelector('body /deep/ #hoodie_username').textContent, "Welcome, " + username);
                 // Verify the signout button is displayed
-                el.addEventListener('signedin', function signedin_handler(event){
-                  el.removeEventListener(event.type, signedin_handler)
+                accountbar.addEventListener('signedin', function signedin_handler(event){
+                  accountbar.removeEventListener(event.type, signedin_handler);
                   flush(function(){
                     // TODO: Verify the "Sign out" button is displayed
                     assert.equal(getComputedStyle(document.querySelector('body /deep/ #signout_button')).display, "inline-block");
                     assert.equal(document.querySelector('body /deep/ #signout_button').textContent.trim(), "Sign Out");
                     done();
-                  })
-                })
-              })
-            })
-          })
-        })
+                  });
+                });
+              });
+            });
+            // Sign up
+            dialog.querySelector('#signup_dialog_button').fire('tap')
+          });
+        });
 
-      })
+      });
 
-    })
+    });
 
     suite('Signed-out state, browser has signed in before', function(){
 
@@ -202,7 +209,7 @@
 
       test('should display the "Sign In" button', function() {
         var el = document.querySelector('body /deep/ hoodie-accountbar');
-        assert.equal(getComputedStyle(el.shadowRoot.querySelector('#signin_button')).display, 'block')
+        assert.equal(getComputedStyle(accountbar.querySelector('#signin_button')).display, 'block')
       })
     
     })
@@ -226,18 +233,17 @@
           Password
           "Sign In" button
         */
-        var el = document.querySelector('body /deep/ hoodie-accountbar');
         // Click to open drop-down menu
-        var menu_button = el.shadowRoot.querySelector('#menu-button')
+        var menu_button = accountbar.querySelector('#menu-button')
         menu_button.fire('tap')
         // Click menu item to open login dialog
         var dropdown = document.querySelector('body /deep/ .dropdown')
-        dropdown.addEventListener('core-overlay-open-completed', function dropdown_opened_handler(event){
+        dropdown.addEventListener('iron-overlay-opened', function dropdown_opened_handler(event){
           dropdown.removeEventListener(event.type, dropdown_opened_handler)
           var button = document.querySelector('body /deep/ #signin_button');
           button.fire('tap');
-          var dialog = document.querySelector('body /deep/ #login_dialog');
-          dialog.addEventListener('core-overlay-open-completed', function dialog_opened_handler(event){
+          var dialog = document.querySelector('body /deep/ #signin_dialog');
+          dialog.addEventListener('iron-overlay-opened', function dialog_opened_handler(event){
             dialog.removeEventListener(event.type, dialog_opened_handler)
             assert.equal(getComputedStyle(dialog.querySelector('#username')).display, 'block');
             assert.equal(getComputedStyle(dialog.querySelector('#password')).display, 'inline-block');
@@ -250,7 +256,7 @@
               // Sign in
               dialog.querySelector('#signin_dialog_button').fire('tap')
               // Wait for the dialog to close
-              dialog.addEventListener('core-overlay-close-completed', function dialog_closed_handler(event){
+              dialog.addEventListener('iron-overlay-closed', function dialog_closed_handler(event){
                 dialog.removeEventListener(event.type, dialog_closed_handler)
                 flush(function(){
                   // Verify the username is displayed
