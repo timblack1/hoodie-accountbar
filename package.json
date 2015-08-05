@@ -1,14 +1,26 @@
 {
   "name": "hoodie-accountbar",
   "type": "app",
+  "author": "Tim Black <tim@alwaysreformed.com> (http://alwaysreformed.com/)",
   "license": "MIT",
-  "description": "",
+  "description": "A Polymer element providing an accountbar to manage user account actions in Hoodie.",
+  "homepage": "https://github.com/timblack1/hoodie-accountbar#readme",
+  "directories": {
+    "test": "test"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/timblack1/hoodie-accountbar.git"
   },
-  "browser": {
-    "hoodie": "./bower_components/hoodie-service/hoodie.js"
+  "keywords": [
+    "web-components",
+    "web-component",
+    "polymer",
+    "hoodie",
+    "accountbar"
+  ],
+  "bugs": {
+    "url": "https://github.com/timblack1/hoodie-accountbar/issues"
   },
   "dependencies": {
     "hoodie": "latest",
@@ -48,10 +60,10 @@
     "opn": "^1.0.0",
     "require-dir": "^0.3.0",
     "run-sequence": "^1.0.2",
+    "semantic-release": "^4.0.2",
     "url": "^0.10.3",
     "vulcanize": ">= 1.4.2",
-    "web-component-tester": "^3.1.3",
-    "semantic-release": "^4.0.2"
+    "web-component-tester": "^3.3.9"
   },
   "engines": {
     "node": ">=0.12.0"
@@ -61,8 +73,9 @@
     "test/"
   ],
   "scripts": {
+    "test": "wct",
     "start": "node node_modules/hoodie-server/bin/start",
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post && gp.sh timblack1 hoodie-service"
   },
   "hoodie": {
     "plugins": [
