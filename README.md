@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/timblack1/hoodie-accountbar.svg?branch=master)](https://travis-ci.org/timblack1/hoodie-accountbar)
 # hoodie-accountbar
 
 A Polymer element providing an accountbar to manage user account actions in [Hoodie](http://hood.ie).
