@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/timblack1/hoodie-accountbar.svg?branch=master)](https://travis-ci.org/timblack1/hoodie-accountbar)
+| [![Build Status](https://travis-ci.org/timblack1/hoodie-accountbar.svg?branch=master)](https://travis-ci.org/timblack1/hoodie-accountbar) | [![Coverage Status](https://coveralls.io/repos/timblack1/hoodie-accountbar/badge.svg?branch=master&service=github)](https://coveralls.io/github/timblack1/hoodie-accountbar?branch=master) | [![Dependency Status](https://david-dm.org/timblack1/hoodie-accountbar.svg)](https://david-dm.org/timblack1/hoodie-accountbar/master) | [![devDependency Status](https://david-dm.org/timblack1/hoodie-accountbar/master/dev-status.svg)](https://david-dm.org/timblack1/hoodie-accountbar/master#info=devDependencies) |
+| --- | --- | --- | --- |
 # hoodie-accountbar
 
 A Polymer element providing an accountbar to manage user account actions in [Hoodie](http://hood.ie).
