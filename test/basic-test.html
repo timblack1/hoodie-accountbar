@@ -186,21 +186,14 @@
     suite('Signed-out state, browser has signed in before', function(){
 
       setup('Before each test, signout and set localstorage record that this browser has signed in', function(done){
-        // TODO: Start here.  Get this setup function working.  Use code from setup function above if suitable.
-        var hab = document.querySelector('body /deep/ hoodie-accountbar');
-        hoodie = hab.hoodie;
-        hab.addEventListener('signedout', function signedout_handler(event){
-          hab.removeEventListener(event.type, signedout_handler);
-          // TODO: Start here.  This never gets called.
-          //  Is the event being fired?
-          debugger;
-          done();
-        });
+        accountbar = fixture('basic');
+        hoodie = accountbar.hoodie;
         // Signout in case a user is signed in
         hoodie.account.signOut()
         // Wait for UI to update
         .done(flush(function(){
           localStorage['has_signed_in_through_hoodie'] = 'true';
+          done();
         }));
       });
 
@@ -209,7 +202,7 @@
       });
 
       test('should display the "Sign In" button', function() {
-        assert.equal(getComputedStyle(accountbar.$.signin_button).display, 'block');
+        assert.equal(getComputedStyle(accountbar.$.signin_button).display, 'inline-block');
       });
     
     });
@@ -217,7 +210,10 @@
     suite('Signed-out state, browser has or has not signed in', function(){
 
       setup('Before each test, signout', function signout(done){
-        hoodie = document.querySelector('body /deep/ hoodie-accountbar').hoodie;
+        // TODO: Start here.
+        // TODO: Has the above somehow caused the earlier test (sign up) to fail?
+        accountbar = fixture('basic');
+        hoodie = accountbar.hoodie;
         // Signout in case a user is signed in
         hoodie.account.signOut()
         // Wait for UI to update
