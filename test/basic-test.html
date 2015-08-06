@@ -77,6 +77,15 @@
 
     */
 
+    // Silence jshint
+    var assert = assert;
+    var test = test;
+    var setup = setup;
+    var suite = suite;
+    var flush = flush;
+    var fixture = fixture;
+    var teardown = teardown;
+
     // Configure defaults
     var username = 'test';
     var password = 'pw';
@@ -86,7 +95,7 @@
     // Utility function
     function delete_localstorage_signedin_record(){
       // Remove the record that the user has signed in before through Hoodie.
-      localStorage.removeItem('has_signed_in_through_hoodie')
+      localStorage.removeItem('has_signed_in_through_hoodie');
     }
 
 
@@ -114,18 +123,17 @@
           // Else wait for UI to update
           .fail(flush(done));
         }
-      })
+      });
 
       test('should display the "Sign Up" button', function() {
-        var button = accountbar.querySelector('#signup_button');
-        assert.equal(getComputedStyle(button).display, 'inline-block');
-      })
+        assert.equal(getComputedStyle(accountbar.$.signup_button).display, 'inline-block');
+      });
 
       test('should display the "Sign In," "Forgot Password," and "Clear local data" menu items', function() {
-        assert.equal(getComputedStyle(accountbar.querySelector('#signin_button_submenu')).display, 'flex');
-        assert.equal(getComputedStyle(accountbar.querySelector('#forgot_password_button')).display, 'flex');
-        assert.equal(getComputedStyle(accountbar.querySelector('#clear_local_data_button')).display, 'flex');
-      })
+        assert.equal(getComputedStyle(accountbar.$.signin_button_submenu).display, 'flex');
+        assert.equal(getComputedStyle(accountbar.$.forgot_password_button).display, 'flex');
+        assert.equal(getComputedStyle(accountbar.$.clear_local_data_button).display, 'flex');
+      });
 
       test('should let you sign up', function(done) {
         /* Test that:
@@ -138,44 +146,36 @@
           Auth function()
         */
         // Tap button to open dialog
-        var button = accountbar.querySelector('#signup_button');
+        var button = accountbar.$.signup_button;
         button.fire('tap');
         var dialog = accountbar.$.signup_dialog;
         dialog.addEventListener('iron-overlay-opened', function dialog_opened_handler(event){
           dialog.removeEventListener(event.type, dialog_opened_handler);
           // Verify dialog displays & contains correct elements
-          assert.equal(getComputedStyle(dialog.querySelector('#username')).display, 'block');
-          assert.equal(getComputedStyle(dialog.querySelector('#password')).display, 'block');
-          assert.equal(getComputedStyle(dialog.querySelector('#password_confirmation')).display, 'block');
+          // Note:  Query by [label=] since the dialogs can't use IDs.
+          assert.equal(getComputedStyle(dialog.querySelector('[label=Username]')).display, 'block');
+          assert.equal(getComputedStyle(dialog.querySelector('[label=Password]')).display, 'block');
+          assert.equal(getComputedStyle(dialog.querySelector('[label="Confirm password"]')).display, 'block');
           assert.equal(getComputedStyle(dialog.querySelector('#signup_dialog_button')).display, 'block');
           // Verify that you can sign up
-          dialog.querySelector('#username').value = username;
-          dialog.querySelector('#password').value = password;
-          dialog.querySelector('#password_confirmation').value = password;
+          dialog.querySelector('[label=Username]').value = username;
+          dialog.querySelector('[label=Password]').value = password;
+          dialog.querySelector('[label="Confirm password"]').value = password;
           // Flush events to permit paper-inputs to register their new values
           flush(function(){
-            // Wait for the dialog to close
-            dialog.addEventListener('iron-overlay-closed', function dialog_closed_handler(event){
-              dialog.removeEventListener(event.type, dialog_closed_handler);
-              // TODO: Start here.  Why isn't the event above firing or being detected here?
-              debugger;
+            // Sign up
+            dialog.querySelector('#signup_dialog_button').fire('tap');
+            // Verify the username is displayed
+            assert.equal(accountbar.$.username_span.textContent, username);
+            // Verify the signout button is displayed
+            hoodie.account.on('signup', function signin_handler(event){
               flush(function(){
-                // Verify the username is displayed
-                assert.equal(document.querySelector('body /deep/ #hoodie_username').textContent, "Welcome, " + username);
-                // Verify the signout button is displayed
-                accountbar.addEventListener('signedin', function signedin_handler(event){
-                  accountbar.removeEventListener(event.type, signedin_handler);
-                  flush(function(){
-                    // TODO: Verify the "Sign out" button is displayed
-                    assert.equal(getComputedStyle(document.querySelector('body /deep/ #signout_button')).display, "inline-block");
-                    assert.equal(document.querySelector('body /deep/ #signout_button').textContent.trim(), "Sign Out");
-                    done();
-                  });
-                });
+                // Verify the "Sign out" button is displayed
+                assert.equal(getComputedStyle(accountbar.$.signout_button).display, 'inline-block');
+                assert.equal(accountbar.$.signout_button.textContent.trim(), 'Sign Out');
+                done();
               });
             });
-            // Sign up
-            dialog.querySelector('#signup_dialog_button').fire('tap')
           });
         });
 
@@ -186,33 +186,33 @@
     suite('Signed-out state, browser has signed in before', function(){
 
       setup('Before each test, signout and set localstorage record that this browser has signed in', function(done){
-        var hab = document.querySelector('body /deep/ hoodie-accountbar')
+        // TODO: Start here.  Get this setup function working.  Use code from setup function above if suitable.
+        var hab = document.querySelector('body /deep/ hoodie-accountbar');
         hoodie = hab.hoodie;
         hab.addEventListener('signedout', function signedout_handler(event){
-          hab.removeEventListener(event.type, signedout_handler)
+          hab.removeEventListener(event.type, signedout_handler);
           // TODO: Start here.  This never gets called.
           //  Is the event being fired?
           debugger;
           done();
-        })
+        });
         // Signout in case a user is signed in
         hoodie.account.signOut()
         // Wait for UI to update
         .done(flush(function(){
-          localStorage['has_signed_in_through_hoodie'] = 'true'
+          localStorage['has_signed_in_through_hoodie'] = 'true';
         }));
-      })
+      });
 
       teardown('After each test, remove localstorage record that this browser has signed in', function(){
-        delete_localstorage_signedin_record()
-      })
+        delete_localstorage_signedin_record();
+      });
 
       test('should display the "Sign In" button', function() {
-        var el = document.querySelector('body /deep/ hoodie-accountbar');
-        assert.equal(getComputedStyle(accountbar.querySelector('#signin_button')).display, 'block')
-      })
+        assert.equal(getComputedStyle(accountbar.$.signin_button).display, 'block');
+      });
     
-    })
+    });
 
     suite('Signed-out state, browser has or has not signed in', function(){
 
@@ -222,7 +222,7 @@
         hoodie.account.signOut()
         // Wait for UI to update
         .done(flush(done));
-      })
+      });
 
       test('should let you sign in', function(done) {
         /*
@@ -234,51 +234,51 @@
           "Sign In" button
         */
         // Click to open drop-down menu
-        var menu_button = accountbar.querySelector('#menu-button')
-        menu_button.fire('tap')
+        var menu_button = accountbar.querySelector('#menu-button');
+        menu_button.fire('tap');
         // Click menu item to open login dialog
-        var dropdown = document.querySelector('body /deep/ .dropdown')
+        var dropdown = document.querySelector('body /deep/ .dropdown');
         dropdown.addEventListener('iron-overlay-opened', function dropdown_opened_handler(event){
-          dropdown.removeEventListener(event.type, dropdown_opened_handler)
+          dropdown.removeEventListener(event.type, dropdown_opened_handler);
           var button = document.querySelector('body /deep/ #signin_button');
           button.fire('tap');
           var dialog = document.querySelector('body /deep/ #signin_dialog');
           dialog.addEventListener('iron-overlay-opened', function dialog_opened_handler(event){
-            dialog.removeEventListener(event.type, dialog_opened_handler)
+            dialog.removeEventListener(event.type, dialog_opened_handler);
             assert.equal(getComputedStyle(dialog.querySelector('#username')).display, 'block');
             assert.equal(getComputedStyle(dialog.querySelector('#password')).display, 'inline-block');
             assert.equal(getComputedStyle(dialog.querySelector('#signin_dialog_button')).display, 'block');
             // Verify that you can sign in
-            dialog.querySelector('#username').value = username
-            dialog.querySelector('#password').value = password
+            dialog.querySelector('#username').value = username;
+            dialog.querySelector('#password').value = password;
             // Flush events to permit paper-inputs to register their new values
             flush(function(){
               // Sign in
-              dialog.querySelector('#signin_dialog_button').fire('tap')
+              dialog.querySelector('#signin_dialog_button').fire('tap');
               // Wait for the dialog to close
               dialog.addEventListener('iron-overlay-closed', function dialog_closed_handler(event){
-                dialog.removeEventListener(event.type, dialog_closed_handler)
+                dialog.removeEventListener(event.type, dialog_closed_handler);
                 flush(function(){
                   // Verify the username is displayed
-                  assert.equal(document.querySelector('body /deep/ #hoodie_username').textContent, "Welcome, " + username);
+                  assert.equal(document.querySelector('body /deep/ #hoodie_username').textContent, 'Welcome, ' + username);
                   // Verify the signout button is displayed
 //                   document.querySelector('body /deep/ hoodie-accountbar')
-                  el.addEventListener('signedin', function signedin_handler(event){
-                    el.removeEventListener(event.type, signedin_handler)
+                  window.addEventListener('signin', function signedin_handler(event){
+                    window.removeEventListener(event.type, signedin_handler);
                     debugger;
                     flush(function(){
                       // TODO: Verify the "Sign out" button is displayed
-                      assert.equal(getComputedStyle(document.querySelector('body /deep/ #signout_button')).display, "inline-block");
-                      assert.equal(document.querySelector('body /deep/ #signout_button').textContent.trim(), "Sign Out");
+                      assert.equal(getComputedStyle(document.querySelector('body /deep/ #signout_button')).display, 'inline-block');
+                      assert.equal(document.querySelector('body /deep/ #signout_button').textContent.trim(), 'Sign Out');
                       done();
-                    })
-                  })
-                })
-              })
-            })
-          })
-        })
-      })
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
 
     });
 
@@ -289,11 +289,11 @@
 
       setup('Before each test, sign out', function(done){
         done();
-      })
+      });
 
       test('should display the "Sign Up" button', function() {
         assert.equal(1,1);
-      })
+      });
 
       test('should allow you to sign in', function() {
         /*
@@ -306,7 +306,7 @@
           Auth function()
         */
         assert.equal(1,1);
-      })
+      });
 
       test('should allow you to sign in', function() {
         /*
@@ -319,7 +319,7 @@
           Auth function()
         */
         assert.equal(1,1);
-      })
+      });
 
       test('should allow you to get a new password', function() {
         /*
@@ -331,7 +331,7 @@
           Password changed
         */
         assert.equal(1,1);
-      })
+      });
 
       test('should allow you to clear local data', function() {
         /*
@@ -339,37 +339,37 @@
           Verify account is gone
         */
         assert.equal(1,1);
-      })
+      });
 
-    })
+    });
 
     suite('Signed-in state', function(){
       // TODO: Flesh out the tests
 
       setup('Before each test, sign in', function(done){
         done();
-      })
+      });
 
       test('should allow you to change your username', function() {
         /*
         Change Username
         */
         assert.equal(1,1);
-      })
+      });
     
       test('should allow you to change your password', function() {
         /*
         Change Password
         */
         assert.equal(1,1);
-      })
+      });
     
       test('should allow you to destroy your account', function() {
         /*
         Destroy Account
         */
         assert.equal(1,1);
-      })
+      });
     
       test('should allow you to sign out', function() {
         /*
@@ -379,25 +379,25 @@
           Welcome message doesn't display
         */
         assert.equal(1,1);
-      })
+      });
     
-    })
+    });
 
     suite('State: Sign in with wrong credentials, or sign up with existing credentials', function(){
       // TODO: Flesh out the tests
 
       setup('Before each test, sign out', function(done){
         done();
-      })
+      });
 
       test('should display an authentication error and prompt you to sign in again', function() {
         /*
         Authentication error. Sign in again
         */
         assert.equal(1,1);
-      })
+      });
     
-    })
+    });
 
     </script>
 

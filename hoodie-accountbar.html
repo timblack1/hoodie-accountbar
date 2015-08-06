@@ -72,7 +72,7 @@ Example:
     </div>
 
     <div id="signedin_bar" hidden="{{signedin_bar_hide}}">
-      Welcome, <span>{{username}}</span>
+      Welcome, <span id="username_span">{{username}}</span>
       <paper-button id="signout_button" on-tap="signout"
         raised>
         Sign Out
@@ -113,18 +113,15 @@ Example:
         <p id="error_message">{{error_message}}</p>
         <p id="error_details">{{error_details}}</p>
         <paper-input value="{{ username }}" 
-          id="username"
           label="Username"
           floatingLabel="true">
         </paper-input>
         <paper-input value="{{ password }}" 
-          id="password"
           label="Password"
           type="password"
           floatingLabel="true">
         </paper-input>
         <paper-input value="{{ password_confirmation }}" 
-          id="password_confirmation"
           label="Confirm password"
           type="password"
           floatingLabel="true">
