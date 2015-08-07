@@ -174,7 +174,7 @@
             // Verify the username is displayed
             assert.equal(accountbar.$.username_span.textContent, username);
             // Verify the signout button is displayed
-            hoodie.account.on('signup', function signin_handler(event){
+            hoodie.account.on('signup', function signin_handler(){
               flush(function(){
                 // Verify the "Sign out" button is displayed
                 assert.equal(getComputedStyle(accountbar.$.signout_button).display, 'inline-block');
@@ -261,7 +261,7 @@
             // Verify the username is displayed
             assert.equal(accountbar.$.username_span.textContent, username);
             // Verify the signout button is displayed
-            hoodie.account.on('signin', function signin_handler(event){
+            hoodie.account.on('signin', function signin_handler(){
               flush(function(){
                 // Verify the "Sign out" button is displayed
                 assert.equal(getComputedStyle(accountbar.$.signout_button).display, 'inline-block');
@@ -369,7 +369,7 @@
         .done(flush(done));
       });
 
-      test('should allow you to change your username', function() {
+      test('should allow you to change your username', function(done) {
         /*
         Change Username
         */
@@ -396,7 +396,9 @@
             assert.equal(hoodie.account.username, new_username);
             // Set username back to original value so other tests will work
             hoodie.account.changeUsername(password, username)
-            .done(done)
+            .done(function(){
+              done();
+            })
             // Let the test timeout if something above failed, and log the error to the console.
             .fail(function(error){
               console.error(error);
@@ -405,7 +407,7 @@
         });
       });
     
-      test('should allow you to change your password', function() {
+      test('should allow you to change your password', function(done) {
         /*
         Change Password
         Note:  This test can cause other tests to fail, if this test does not reset the password back to its default.
@@ -434,7 +436,9 @@
             .done(hoodie.account.signIn(username, new_password))
             // Set password back to original value so other tests will work
             .done(hoodie.account.changePassword(new_password, password))
-            .done(done)
+            .done(function(){
+              done();
+            })
             // Let the test timeout if something above failed, and log the error to the console.
             .fail(function(error){
               console.error(error);
@@ -522,15 +526,29 @@
           dialog.querySelector('[label=Password]').value = wrong_password;
           // Submit form
           dialog.querySelector('#signin_dialog_button').fire('tap');
-          accountbar.addEventListener('authentication-failed', function authentication_failed(){
+          accountbar.addEventListener('authentication-failed', function authentication_failed(event){
+            accountbar.removeEventListener(event.type, authentication_failed);
             flush(function(){
-              accountbar.removeEventListener(event.type, authentication_failed);
-              // It should reopen the dialog
-              assert.equal(getComputedStyle(accountbar.$.signin_dialog).display, 'block');
-              //debugger;
-              // It should display an authentication error
-              assert.equal(accountbar.$.signin_dialog.querySelector('.error_message').textContent, 'Authentication failed.  Please sign in again.');
-              done();
+              if (!accountbar.$.signin_dialog.opened){
+                // Wait for dialog to open
+                accountbar.$.signin_dialog.addEventListener('iron-overlay-opened', function dialog_opened_handler(event){
+                  accountbar.$.signin_dialog.removeEventListener(event.type, dialog_opened_handler);
+                  // It should reopen the dialog
+                  assert.equal(getComputedStyle(accountbar.$.signin_dialog).display, 'block');
+                  //debugger;
+                  // It should display an authentication error
+                  assert.equal(accountbar.$.signin_dialog.querySelector('.error_message').textContent,
+                    'Authentication failed.  Please sign in again.');
+                  done();
+                });
+              }else{
+                // It should reopen the dialog
+                assert.equal(getComputedStyle(accountbar.$.signin_dialog).display, 'block');
+                //debugger;
+                // It should display an authentication error
+                assert.equal(accountbar.$.signin_dialog.querySelector('.error_message').textContent, 'Authentication failed.  Please sign in again.');
+                done();
+              }
             });
           });
         });

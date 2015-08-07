@@ -130,7 +130,7 @@ Example:
       <div class="buttons">
         <paper-button dialog-confirm
           id="signup_dialog_button"
-          on-tap="handleSubmit">
+          on-tap="_handleSubmit">
           Sign Up
         </paper-button>
       </div>
@@ -156,7 +156,7 @@ Example:
       <div class="buttons">
         <paper-button dialog-confirm
           id="signin_dialog_button"
-          on-tap="handleSubmit">
+          on-tap="_handleSubmit">
           Sign In
         </paper-button>
       </div>
@@ -177,7 +177,7 @@ Example:
       <div class="buttons">
         <paper-button dialog-confirm
           id="forgotpassword_dialog_button"
-          on-tap="handleSubmit">
+          on-tap="_handleSubmit">
           Email Me A New Password
         </paper-button>
       </div>
@@ -203,7 +203,7 @@ Example:
       <div class="buttons">
         <paper-button dialog-confirm
           id="changeusername_dialog_button"
-          on-tap="handleSubmit">
+          on-tap="_handleSubmit">
           Change Username
         </paper-button>
       </div>
@@ -230,7 +230,7 @@ Example:
       <div class="buttons">
         <paper-button dialog-confirm 
           id="changepassword_dialog_button"
-          on-tap="handleSubmit">
+          on-tap="_handleSubmit">
           Change Password
         </paper-button>
       </div>
@@ -274,12 +274,10 @@ Example:
     // TODO: Improve the look of the drop-down arrow by graphically connecting it to the "Sign in/up/out" button. #3
     // TODO: Make the dialogs submit when the enter key is pressed #4
     // TODO: Make the dialogs focus their first child paper-input #5
-    // TODO: Decide which methods should be hidden in the private API
-    //  I don't intend users to use this element's API, so maybe they all should be private.
-    //  But I can imagine someone wanting to control the user interface, so I don't know.
+    // TODO: Create this.email from somewhere to use in sending a new password #17
     attached:function(){
 
-      // Declare the elements to show or hide using this.show_only
+      // Declare the elements to show or hide using this.show_only_these_elements
       this.elements_to_show_or_hide = [
         'signup_bar',
         'signin_bar',
@@ -287,44 +285,49 @@ Example:
         'signin_again_bar'
       ];
       // Set the default bar to show until we find out we need another
-      this.show_only('signup_bar');
+      this.show_only_these_elements('signup_bar');
 
       this.hoodie = this.$.hoodie_service.hoodie;
       this.username = this.hoodie.account.username;
       // Subscribe to (listen for) Hoodie account events
-      this.hoodie.account.on('signup changeusername signin reauthenticated', this.handleUserAuthenticated.bind(this));
-      this.hoodie.account.on('signout', this.handleUserUnauthenticated.bind(this));
-      this.hoodie.on('account:error:unauthenticated remote:error:unauthenticated', this.handleUserAuthenticationError.bind(this));
+      this.hoodie.account.on('signup changeusername signin reauthenticated', this._handleUserAuthenticated.bind(this));
+      this.hoodie.account.on('signout', this._handleUserUnauthenticated.bind(this));
+      this.hoodie.on('account:error:unauthenticated remote:error:unauthenticated', this._handleUserAuthenticationError.bind(this));
       // Check to see whether this user is authenticated
-      this.hoodie.account.authenticate().then(this.handleUserAuthenticated.bind(this), this.handleUserUnauthenticated.bind(this));
+      this.hoodie.account.authenticate().then(this._handleUserAuthenticated.bind(this), this._handleUserUnauthenticated.bind(this));
     },
-    // Display the dialog with input fields for logging in, etc.
-    signup:function(event){
+    // Display the signup dialog
+    signup:function(){
       this.hide_menus();
       this.$.signup_dialog.open();
       // TODO: Focus username input
     },
-    signin:function(event){
+    // Display the signin dialog
+    signin:function(){
       this.hide_menus();
       this.$.signin_dialog.open();
     },
-    forgotPassword:function(event){
+    // Display the forgot password dialog
+    forgotPassword:function(){
       this.hide_menus();
       this.$.forgotpassword_dialog.open();
     },
-    changePassword:function(event){
+    // Display the change password dialog
+    changePassword:function(){
       this.hide_menus();
       this.$.changepassword_dialog.open();
     },
-    changeUsername:function(event){
+    // Display the change username dialog
+    changeUsername:function(){
       this.hide_menus();
       this.$.changeusername_dialog.open();
     },
-    signout:function(event){
+    // Display the signout dialog
+    signout:function(){
       var thiz = this;
       this.hoodie.account.signOut()
         .done(function(){
-          thiz.show_only('signup_bar');
+          thiz.show_only_these_elements('signup_bar');
           thiz.username = '';    
           console.log('Signed out. Username is now: ' + thiz.hoodie.account.username);
         })
@@ -332,16 +335,28 @@ Example:
           console.log('Could not sign out: ', error);
         });
     },
+    // Display the destroy account dialog
     destroy_account:function(){
       this.hide_menus();
       this.destroy_data_question = 'Are you sure you want to destroy your account?';
       this.$.data_destruction_dialog.open();
     },
+    // Display the clear local data dialog
     clear_local_data:function(){
       this.hide_menus();
       this.destroy_data_question = 'Are you sure you want to clear your local data from your browser?';
       this.$.data_destruction_dialog.open();
     },
+    /**
+     * Destroy a user's Hoodie account.
+     *
+     * This is a proxy to `hoodie.account.destroy()`.
+     *
+     * If the user is logged in, this destroys the user's account both in the browser and on the server.
+     *
+     * If the user is not logged in, this only destroys the user's data stored in the browser,
+     * and their account on the server still exists.
+     */
     destroy_data_confirmed:function(){
       // Note: apparently .destroy() works for the case in which the user is not signed in in this way:
       //  Hoodie destroys the local data, but does not delete the account on the server.  So it works for both
@@ -349,39 +364,45 @@ Example:
       localStorage.removeItem('has_signed_in_through_hoodie');
       var thiz = this;
       this.hoodie.account.destroy()
-        .done(function(){
-          thiz.fire('account_destroyed');
-        })
-        .fail(function(error){
-          console.error(error);
-        });
+      .done(function(){
+        thiz.fire('account_destroyed');
+      })
+      .fail(function(error){
+        console.error(error);
+      });
     },
-    // Report on authentication
-    handleUserAuthenticated: function() {
+    // Report authentication status to the user by displaying the signedin bar
+    _handleUserAuthenticated: function() {
       // Report to the user that the user has been authenticated
-      this.show_only('signedin_bar');
+      this.show_only_these_elements('signedin_bar');
       localStorage['has_signed_in_through_hoodie'] = 'true';
     },
-    handleUserUnauthenticated: function() {
+    /**
+     * Report authentication status to the user by displaying the signin or signup bar, depending on
+     * whether the user has logged in before.
+     */
+    _handleUserUnauthenticated: function() {
       if (!this.hoodie.account.username) {
-        this.handleUserAuthenticationError();
+        this._handleUserAuthenticationError();
       }
       if (localStorage['has_signed_in_through_hoodie'] === 'true'){
         // Check localstorage to see if this browser has been authenticated before,
         //  and offer "Sign In" as the default option accordingly.
-        this.show_only('signin_bar');
+        this.show_only_these_elements('signin_bar');
       }else{
         // Report to the user that the user has not been authenticated
-        this.show_only('signup_bar');
+        this.show_only_these_elements('signup_bar');
       }
       // Don't display username, since user is not signed in
       this.username = '';
     },
-    handleUserAuthenticationError: function() {
+    // Report authentication status to the user by displaying the signin again bar.
+    _handleUserAuthenticationError: function() {
       // Report to the user that there was an error authenticating the user
-      this.show_only('signin_again_bar');
+      this.show_only_these_elements('signin_again_bar');
     },
-    handleSubmit:function(event) {
+    // Handle the submission events of the dialogs which contain a username or password.
+    _handleSubmit:function(event) {
       var magic;
 
       // Get the id of the button that was clicked
@@ -392,57 +413,57 @@ Example:
       switch(mode) {
         case 'signin_dialog_button':
           magic = this.hoodie.account.signIn(this.username, this.password)
-            .done(this.magic_done.bind(this)).fail(this.magic_fail.bind(this));
+            .done(this._magic_done.bind(this)).fail(this._magic_fail.bind(this));
           break;
         case 'signup_dialog_button':
           magic = this.hoodie.account.signUp(this.username, this.password)
-            .done(this.magic_done.bind(this)).fail(this.magic_fail.bind(this));
+            .done(this._magic_done.bind(this)).fail(this._magic_fail.bind(this));
           break;
         case 'changepassword_dialog_button':
           magic = this.hoodie.account.changePassword(null, this.new_password)
-            .done(this.magic_done.bind(this)).fail(this.magic_fail.bind(this));
+            .done(this._magic_done.bind(this)).fail(this._magic_fail.bind(this));
           break;
         case 'changeusername_dialog_button':
           magic = this.hoodie.account.changeUsername(this.current_password, this.new_username)
-            .done(this.magic_done.bind(this)).fail(this.magic_fail.bind(this));
+            .done(this._magic_done.bind(this)).fail(this._magic_fail.bind(this));
           break;
         case 'forgotpassword_dialog_button':
+          var thiz = this;
           magic = this.hoodie.account.resetPassword(this.email)
           .done(function() {
-            alert('Sending new password to ' + this.email);
-          }).fail(this.magic_fail.bind(this));
+            window.alert('Sending new password to ' + thiz.email);
+          })
+          .fail(this._magic_fail.bind(this));
           break;
       }
     },
-    magic_done:function(){
+    _magic_done:function(){
       this.error_message = '';
       this.error_details = '';
       this.close_all_dialogs();
-      this.show_only('signedin_bar');
+      this.show_only_these_elements('signedin_bar');
     },
-    magic_fail:function(error){
+    _magic_fail:function(error){
       this.error_message = 'Authentication failed.  Please sign in again.';
       this.error_details = 'Error: ' + error.status + ' - ' + error.name + '. Reason: ' + error.message;
       this.$.signin_dialog.open();
-      var thiz = this;
-      // Wait for dialog to open
-      flush(function(){
-        // Notify test that authentication failed
-        this.fire('authentication-failed');
-      });
+      this.fire('authentication-failed');
     },
 
     /**
-     * This function allows this element's JavaScript code to show or hide elements in the template.
+     * This function shows one or more elements in the template.
      *
      * Usage:
      *
-     *     show_only('signup_bar_hide' [, ...])
+     *     show_only_these_elements('signup_bar' [, ...])
      * 
      * This function accepts more than one argument.  Each argument must be a variable name used
      *  in hidden="" attributes in the template.
+     *
+     * Note that currently it is only able to show the signin bars, and we only want to show one
+     * signin bar at a time, so it could be simplified a bit to serve that purpose alone.
      */
-    show_only:function(){
+    show_only_these_elements:function(){
       // Create a true array out of the arguments object
       var args = Array.prototype.slice.call(arguments);
 
@@ -458,12 +479,13 @@ Example:
         }
       }
     },
+    // Toggle the drop-down menu
     toggle_menu:function(event){
       var accountbar = Polymer.dom(event.target).parentNode.host.parentNode;
       Polymer.dom(accountbar).querySelector('paper-menu').toggleAttribute('hidden');
     },
     /**
-     * This function closes all menus
+     * Close all menus
      */
     hide_menus:function(){
       var menus = ['signup_menu', 'signin_menu', 'signedin_menu', 'signin_again_menu'];
@@ -471,6 +493,11 @@ Example:
         Polymer.dom(this.$[menus[i]]).setAttribute('hidden', 'hidden');
       }
     },
+    /**
+     * Close all dialogs.
+     *
+     * This is useful to easily prevent more than one dialog from displaying at one time.
+     */
     close_all_dialogs:function(){
       var dialogs = ['signup_dialog', 'signin_dialog', 'forgotpassword_dialog', 'changeusername_dialog', 'changepassword_dialog', 'data_destruction_dialog'];
       for (var i=0; i<dialogs.length; i++){
