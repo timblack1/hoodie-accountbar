@@ -93,6 +93,8 @@
     // Configure defaults
     var username = 'test';
     var password = 'pw';
+    var wrong_username = 'test-wrong';
+    var wrong_password = 'pw-wrong';
     var hoodie;
     var accountbar;
 
@@ -499,14 +501,12 @@
       setup('Before each test, sign out', function(done){
         accountbar = fixture('basic');
         hoodie = accountbar.hoodie;
-        var wrong_username = 'test-wrong';
-        var wrong_password = 'pw-wrong';
         // Signout in case a user is signed in
         hoodie.account.signOut()
         .done(done);
       });
 
-      test('Should display an authentication error and prompt you to sign in again', function() {
+      test('should reopen the dialog, and should display an authentication error (and prompt the user to sign in again)', function(done) {
         /*
         Authentication error. Sign in again
         */
@@ -522,22 +522,18 @@
           dialog.querySelector('[label=Password]').value = wrong_password;
           // Submit form
           dialog.querySelector('#signin_dialog_button').fire('tap');
-          accountbar.addEventListener('signin', function(){
-            done();
-          });
-          hoodie.on('account:error:unauthenticated remote:error:unauthenticated', function(){
-            done();
+          accountbar.addEventListener('authentication-failed', function authentication_failed(){
+            flush(function(){
+              accountbar.removeEventListener(event.type, authentication_failed);
+              // It should reopen the dialog
+              assert.equal(getComputedStyle(accountbar.$.signin_dialog).display, 'block');
+              //debugger;
+              // It should display an authentication error
+              assert.equal(accountbar.$.signin_dialog.querySelector('.error_message').textContent, 'Authentication failed.  Please sign in again.');
+              done();
+            });
           });
         });
-
-        assert.notEqual(accountbar.$.signin_dialog.querySelector('.error_message').textContent, '');
-      });
-    
-
-      test('When you sign in, but authentication fails, the dialog should not close', function(done){
-        // TODO: Start here
-        assert.equal(getComputedStyle(accountbar.$.signin_dialog).display, 'block');
-        done();
       });
 
     });

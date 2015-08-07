@@ -268,16 +268,15 @@ Example:
   Polymer({
     is: 'hoodie-accountbar',
     properties:{
-      destroyed: {
-        type: Boolean,
-        value: false
-      }
     },
     // define element prototype here
     // TODO: Reply to https://twitter.com/addyosmani/status/452848531125313536
     // TODO: Improve the look of the drop-down arrow by graphically connecting it to the "Sign in/up/out" button. #3
     // TODO: Make the dialogs submit when the enter key is pressed #4
     // TODO: Make the dialogs focus their first child paper-input #5
+    // TODO: Decide which methods should be hidden in the private API
+    //  I don't intend users to use this element's API, so maybe they all should be private.
+    //  But I can imagine someone wanting to control the user interface, so I don't know.
     attached:function(){
 
       // Declare the elements to show or hide using this.show_only
@@ -386,8 +385,9 @@ Example:
       var magic;
 
       // Get the id of the button that was clicked
-      var mode = Polymer.dom(event.target).parentNode.host.id;
-      // var mode = event.target.id;
+      // Note: Using Polymer.dom() throws an error in some tests.
+      // var mode = Polymer.dom(event.target).parentNode.host.id;
+      var mode = event.target.id;
 
       switch(mode) {
         case 'signin_dialog_button':
@@ -424,6 +424,12 @@ Example:
       this.error_message = 'Authentication failed.  Please sign in again.';
       this.error_details = 'Error: ' + error.status + ' - ' + error.name + '. Reason: ' + error.message;
       this.$.signin_dialog.open();
+      var thiz = this;
+      // Wait for dialog to open
+      flush(function(){
+        // Notify test that authentication failed
+        this.fire('authentication-failed');
+      });
     },
 
     /**
