@@ -48,7 +48,7 @@ Example:
           id="forgot_password_button"
           on-tap="forgotPassword">Forgot Password</paper-item>
         <paper-item 
-          id="clear_local_data_button"
+          id="clear_local_data_button_signup"
           on-tap="clear_local_data">Clear Local Data</paper-item>
       </paper-menu>
     </div>
@@ -66,7 +66,7 @@ Example:
         <paper-item
           on-tap="forgotPassword">Forgot Password</paper-item>
         <paper-item 
-          id="clear_local_data_button"
+          id="clear_local_data_button_signin"
           on-tap="clear_local_data">Clear Local Data</paper-item>
       </paper-menu>
     </div>
@@ -80,7 +80,11 @@ Example:
       <paper-icon-button icon="arrow-drop-down" noink on-tap="toggle_menu"></paper-icon-button>
       <paper-menu class="menu" id="signedin_menu" hidden>
         <paper-item
+          id="changepassword_button"
           on-tap="changePassword">Change Password</paper-item>
+        <paper-item 
+          id="changeusername_button"
+          on-tap="changeUsername">Change Username</paper-item>
         <paper-item 
           id="destroy_account"
           on-tap="destroy_account">Destroy Account</paper-item>
@@ -94,10 +98,6 @@ Example:
       </paper-button>
       <paper-icon-button icon="arrow-drop-down" noink on-tap="toggle_menu"></paper-icon-button>
       <paper-menu class="menu" id="signin_again_menu" hidden>
-        <paper-item
-          on-tap="changePassword">Change Password</paper-item>
-        <paper-item 
-          on-tap="changeUsername">Change Username</paper-item>
         <paper-item 
           on-tap="signout">Sign Out</paper-item>
       </paper-menu>
@@ -110,8 +110,8 @@ Example:
       entry-animation="scale-up-animation"
       exit-animation="fade-out-animation">
       <div class="layout vertical">
-        <p id="error_message">{{error_message}}</p>
-        <p id="error_details">{{error_details}}</p>
+        <p class="error_message">{{error_message}}</p>
+        <p class="error_details">{{error_details}}</p>
         <paper-input value="{{ username }}" 
           label="Username"
           floatingLabel="true">
@@ -141,8 +141,8 @@ Example:
       entry-animation="scale-up-animation"
       exit-animation="fade-out-animation">
       <div class="layout vertical">
-        <p id="error_message">{{error_message}}</p>
-        <p id="error_details">{{error_details}}</p>
+        <p class="error_message">{{error_message}}</p>
+        <p class="error_details">{{error_details}}</p>
         <paper-input value="{{ username }}" 
           label="Username"
           floatingLabel="true">
@@ -176,6 +176,7 @@ Example:
       </div>
       <div class="buttons">
         <paper-button affirmative
+          id="forgotpassword_dialog_button"
           on-tap="handleSubmit">
           Email Me A New Password
         </paper-button>
@@ -201,6 +202,7 @@ Example:
       </div>
       <div class="buttons">
         <paper-button affirmative
+          id="changeusername_dialog_button"
           on-tap="handleSubmit">
           Change Username
         </paper-button>
@@ -226,7 +228,9 @@ Example:
         </paper-input>
       </div>
       <div class="buttons">
-        <paper-button affirmative on-tap="handleSubmit">
+        <paper-button affirmative 
+          id="changepassword_dialog_button"
+          on-tap="handleSubmit">
           Change Password
         </paper-button>
       </div>
@@ -264,6 +268,10 @@ Example:
   Polymer({
     is: 'hoodie-accountbar',
     properties:{
+      destroyed: {
+        type: Boolean,
+        value: false
+      }
     },
     // define element prototype here
     // TODO: Reply to https://twitter.com/addyosmani/status/452848531125313536
@@ -340,7 +348,14 @@ Example:
       //  Hoodie destroys the local data, but does not delete the account on the server.  So it works for both
       //  cases:  both signed in and signed out.
       localStorage.removeItem('has_signed_in_through_hoodie');
-      this.hoodie.account.destroy();
+      var thiz = this;
+      this.hoodie.account.destroy()
+        .done(function(){
+          thiz.fire('account_destroyed');
+        })
+        .fail(function(error){
+          console.error(error);
+        });
     },
     // Report on authentication
     handleUserAuthenticated: function() {
@@ -369,11 +384,10 @@ Example:
     },
     handleSubmit:function(event) {
       var magic;
-      this.close_all_dialogs();
 
       // Get the id of the button that was clicked
-//       var mode = Polymer.dom(event.target).parentNode.host.id;
-      var mode = event.target.id;
+      var mode = Polymer.dom(event.target).parentNode.host.id;
+      // var mode = event.target.id;
 
       switch(mode) {
         case 'signin_dialog_button':
@@ -403,6 +417,7 @@ Example:
     magic_done:function(){
       this.error_message = '';
       this.error_details = '';
+      this.close_all_dialogs();
       this.show_only('signedin_bar');
     },
     magic_fail:function(error){

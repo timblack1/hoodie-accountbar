@@ -24,7 +24,11 @@
     <script>
     'use strict';
       
+    // Note:  These are mostly integration tests, since this element integrates Hoodie and Polymer.
+
     // TODO: Test each mode's effects on authentication, data, UI
+    // TODO: Review the outline below to see if it covers all cases we need to test.
+    // TODO: Review the tests to see if they match the outline.
     /*
     Construct state in setup(), then click the following button:
 
@@ -132,7 +136,7 @@
       test('should display the "Sign In," "Forgot Password," and "Clear local data" menu items', function() {
         assert.equal(getComputedStyle(accountbar.$.signin_button_submenu).display, 'flex');
         assert.equal(getComputedStyle(accountbar.$.forgot_password_button).display, 'flex');
-        assert.equal(getComputedStyle(accountbar.$.clear_local_data_button).display, 'flex');
+        assert.equal(getComputedStyle(accountbar.$.clear_local_data_button_signup).display, 'flex');
       });
 
       test('should let you sign up', function(done) {
@@ -210,8 +214,6 @@
     suite('Signed-out state, browser has or has not signed in', function(){
 
       setup('Before each test, signout', function signout(done){
-        // TODO: Start here.
-        // TODO: Has the above somehow caused the earlier test (sign up) to fail?
         accountbar = fixture('basic');
         hoodie = accountbar.hoodie;
         // Signout in case a user is signed in
@@ -228,143 +230,247 @@
           Username
           Password
           "Sign In" button
+        Auth function()
         */
-        // Click to open drop-down menu
-        var menu_button = accountbar.querySelector('#menu-button');
-        menu_button.fire('tap');
-        // Click menu item to open login dialog
-        var dropdown = document.querySelector('body /deep/ .dropdown');
-        dropdown.addEventListener('iron-overlay-opened', function dropdown_opened_handler(event){
-          dropdown.removeEventListener(event.type, dropdown_opened_handler);
-          var button = document.querySelector('body /deep/ #signin_button');
-          button.fire('tap');
-          var dialog = document.querySelector('body /deep/ #signin_dialog');
-          dialog.addEventListener('iron-overlay-opened', function dialog_opened_handler(event){
-            dialog.removeEventListener(event.type, dialog_opened_handler);
-            assert.equal(getComputedStyle(dialog.querySelector('#username')).display, 'block');
-            assert.equal(getComputedStyle(dialog.querySelector('#password')).display, 'inline-block');
-            assert.equal(getComputedStyle(dialog.querySelector('#signin_dialog_button')).display, 'block');
-            // Verify that you can sign in
-            dialog.querySelector('#username').value = username;
-            dialog.querySelector('#password').value = password;
-            // Flush events to permit paper-inputs to register their new values
-            flush(function(){
-              // Sign in
-              dialog.querySelector('#signin_dialog_button').fire('tap');
-              // Wait for the dialog to close
-              dialog.addEventListener('iron-overlay-closed', function dialog_closed_handler(event){
-                dialog.removeEventListener(event.type, dialog_closed_handler);
-                flush(function(){
-                  // Verify the username is displayed
-                  assert.equal(document.querySelector('body /deep/ #hoodie_username').textContent, 'Welcome, ' + username);
-                  // Verify the signout button is displayed
-//                   document.querySelector('body /deep/ hoodie-accountbar')
-                  window.addEventListener('signin', function signedin_handler(event){
-                    window.removeEventListener(event.type, signedin_handler);
-                    debugger;
-                    flush(function(){
-                      // TODO: Verify the "Sign out" button is displayed
-                      assert.equal(getComputedStyle(document.querySelector('body /deep/ #signout_button')).display, 'inline-block');
-                      assert.equal(document.querySelector('body /deep/ #signout_button').textContent.trim(), 'Sign Out');
-                      done();
-                    });
-                  });
-                });
+
+        // Tap button to open dialog
+        var button;
+        if (getComputedStyle(accountbar.$.signin_bar).display === 'block'){
+          button = accountbar.$.signin_button;
+        }else if (getComputedStyle(accountbar.$.signup_bar).display === 'block'){
+          button = accountbar.$.signin_button_submenu;
+        }
+        button.fire('tap');
+        var dialog = accountbar.$.signin_dialog;
+        dialog.addEventListener('iron-overlay-opened', function dialog_opened_handler(event){
+          dialog.removeEventListener(event.type, dialog_opened_handler);
+          // Verify dialog displays & contains correct elements
+          // Note:  Query by [label=] since the dialogs can't use IDs.
+          assert.equal(getComputedStyle(dialog.querySelector('[label=Username]')).display, 'block');
+          assert.equal(getComputedStyle(dialog.querySelector('[label=Password]')).display, 'block');
+          assert.equal(getComputedStyle(dialog.querySelector('#signin_dialog_button')).display, 'block');
+          // Verify that you can sign in
+          dialog.querySelector('[label=Username]').value = username;
+          dialog.querySelector('[label=Password]').value = password;
+          // Flush events to permit paper-inputs to register their new values
+          flush(function(){
+            // Sign in
+            dialog.querySelector('#signin_dialog_button').fire('tap');
+            // Verify the username is displayed
+            assert.equal(accountbar.$.username_span.textContent, username);
+            // Verify the signout button is displayed
+            hoodie.account.on('signin', function signin_handler(event){
+              flush(function(){
+                // Verify the "Sign out" button is displayed
+                assert.equal(getComputedStyle(accountbar.$.signout_button).display, 'inline-block');
+                assert.equal(accountbar.$.signout_button.textContent.trim(), 'Sign Out');
+                done();
               });
             });
+          });
+        });
+
+      });
+
+    });
+
+    suite('Signed-out state', function(){
+
+      setup('Before each test, sign out', function(done){
+        accountbar = fixture('basic');
+        hoodie = accountbar.hoodie;
+        // Signout in case a user is signed in
+        hoodie.account.signOut()
+        // Wait for UI to update
+        .done(flush(done));
+      });
+
+      /**
+       * TODO: I don't know how to get the new password out of my email here to know whether the integration worked.
+       *    It would be fine to just test for the 'passwordreset' event, but then we don't know the user's new password,
+       *    so this test is disabled for now.  Maybe someday we can write a way to delete the test user from the
+       *    database after this test is done.
+       */
+//       test('should allow you to get a new password', function() {
+//         /*
+//         Forgot Password
+//           Dialog displays
+//           Dialog contains
+//             Username
+//             "Email Me A New Password" button
+//           Password changed
+//         */
+        
+//         // Tap button to open dialog
+//         var button = accountbar.$.forgot_password_button;
+//         button.fire('tap');
+//         var dialog = accountbar.$.forgot_password_dialog;
+//         dialog.addEventListener('iron-overlay-opened', function dialog_opened_handler(event){
+//           dialog.removeEventListener(event.type, dialog_opened_handler);
+//           // Verify dialog displays & contains correct elements
+//           // Note:  Query by [label=] since the dialogs can't use IDs.
+//           assert.equal(getComputedStyle(dialog.querySelector('[label=Username]')).display, 'block');
+//           assert.equal(getComputedStyle(dialog.querySelector('#forgotpassword_dialog_button')).display, 'block');
+//           // Verify that you can sign in
+//           dialog.querySelector('[label=Username]').value = username;
+//           // Flush events to permit paper-inputs to register their new values
+//           flush(function(){
+//             // Submit form
+//             dialog.querySelector('#forgotpassword_dialog_button').fire('tap');
+//             hoodie.account.on('passwordreset', function passwordreset_handler(event){
+//               flush(function(){
+//                 // TODO: Verify the new password has been emailed
+//                 assert.equal(1,0);
+//                 done();
+//               });
+//             });
+//           });
+//         });
+//       });
+
+      test('should allow you to clear local data', function(done) {
+        /*
+        Clear local data
+          Verify local data is gone
+        */
+
+        // Tap button to open dialog
+        var button = accountbar.$.clear_local_data_button_signin;
+        button.fire('tap');
+        var dialog = accountbar.$.data_destruction_dialog;
+        dialog.addEventListener('iron-overlay-opened', function dialog_opened_handler(event){
+          dialog.removeEventListener(event.type, dialog_opened_handler);
+          // Verify dialog displays & contains correct elements
+          assert.equal(getComputedStyle(dialog.querySelector('#destroy_data_button')).display, 'block');
+          // Verify that you can destroy local data
+          // Submit form
+          dialog.querySelector('#destroy_data_button').fire('tap');
+          flush(function(){
+            // Verify the local data is gone
+            var hoodie_config = localStorage.getItem('_hoodie_config');
+            assert.equal(hoodie_config, null);
+            done();
           });
         });
       });
 
     });
 
-    // TODO:  When you sign in, but authentication fails, the dialog should not close.
-
-    suite('Signed-out state', function(){
-      // TODO: Flesh out the tests
-
-      setup('Before each test, sign out', function(done){
-        done();
-      });
-
-      test('should display the "Sign Up" button', function() {
-        assert.equal(1,1);
-      });
-
-      test('should allow you to sign in', function() {
-        /*
-        Sign In
-          Dialog displays
-          Dialog contains
-            Username
-            Password
-            "Sign In" button
-          Auth function()
-        */
-        assert.equal(1,1);
-      });
-
-      test('should allow you to sign in', function() {
-        /*
-        Sign In
-          Dialog displays
-          Dialog contains
-            Username
-            Password
-            "Sign In" button
-          Auth function()
-        */
-        assert.equal(1,1);
-      });
-
-      test('should allow you to get a new password', function() {
-        /*
-        Forgot Password
-          Dialog displays
-          Dialog contains
-            Username
-            "Email Me A New Password" button
-          Password changed
-        */
-        assert.equal(1,1);
-      });
-
-      test('should allow you to clear local data', function() {
-        /*
-        Clear local data
-          Verify account is gone
-        */
-        assert.equal(1,1);
-      });
-
-    });
-
     suite('Signed-in state', function(){
-      // TODO: Flesh out the tests
-
+      
       setup('Before each test, sign in', function(done){
-        done();
+        accountbar = fixture('basic');
+        hoodie = accountbar.hoodie;
+        // Signin in case a user is signed out
+        hoodie.account.signIn(username, password)
+        // Wait for UI to update
+        .done(flush(done));
       });
 
       test('should allow you to change your username', function() {
         /*
         Change Username
         */
-        assert.equal(1,1);
+
+        var new_username = 'test-changed';
+
+        // Tap button to open dialog
+        var button = accountbar.$.changeusername_button;
+        button.fire('tap');
+        var dialog = accountbar.$.changeusername_dialog;
+        dialog.addEventListener('iron-overlay-opened', function dialog_opened_handler(event){
+          dialog.removeEventListener(event.type, dialog_opened_handler);
+          // Verify dialog displays & contains correct elements
+          assert.equal(getComputedStyle(dialog.querySelector('[label="New Username"]')).display, 'block');
+          assert.equal(getComputedStyle(dialog.querySelector('[label="Current Password"]')).display, 'block');
+          assert.equal(getComputedStyle(accountbar.$.changeusername_dialog_button).display, 'block');
+          // Verify that you can change your username
+          dialog.querySelector('[label="New Username"]').value = new_username;
+          dialog.querySelector('[label="Current Password"]').value = password;
+          // Submit form
+          dialog.querySelector('#changeusername_dialog_button').fire('tap');
+          hoodie.account.on('changeusername', function(){
+            // Verify the username has changed
+            assert.equal(hoodie.account.username, new_username);
+            // Set username back to original value so other tests will work
+            hoodie.account.changeUsername(password, username)
+            .done(done)
+            // Let the test timeout if something above failed, and log the error to the console.
+            .fail(function(error){
+              console.error(error);
+            });
+          });
+        });
       });
     
       test('should allow you to change your password', function() {
         /*
         Change Password
+        Note:  This test can cause other tests to fail, if this test does not reset the password back to its default.
         */
-        assert.equal(1,1);
+
+        var new_password = 'pw-changed';
+
+        // Tap button to open dialog
+        var button = accountbar.$.changepassword_button;
+        button.fire('tap');
+        var dialog = accountbar.$.changepassword_dialog;
+        dialog.addEventListener('iron-overlay-opened', function dialog_opened_handler(event){
+          dialog.removeEventListener(event.type, dialog_opened_handler);
+          // Verify dialog displays & contains correct elements
+          assert.equal(getComputedStyle(dialog.querySelector('[label="Current Password"]')).display, 'block');
+          assert.equal(getComputedStyle(dialog.querySelector('[label="New Password"]')).display, 'block');
+          assert.equal(getComputedStyle(accountbar.$.changepassword_dialog_button).display, 'block');
+          // Verify that you can change your password
+          dialog.querySelector('[label="Current Password"]').value = password;
+          dialog.querySelector('[label="New Password"]').value = new_password;
+          // Submit form
+          dialog.querySelector('#changepassword_dialog_button').fire('tap');
+          hoodie.account.on('changepassword', function(){
+            // Verify the password has changed
+            hoodie.account.signOut()
+            .done(hoodie.account.signIn(username, new_password))
+            // Set password back to original value so other tests will work
+            .done(hoodie.account.changePassword(new_password, password))
+            .done(done)
+            // Let the test timeout if something above failed, and log the error to the console.
+            .fail(function(error){
+              console.error(error);
+            });
+          });
+        });
       });
     
-      test('should allow you to destroy your account', function() {
+      test('should allow you to destroy your account', function(done) {
         /*
         Destroy Account
         */
-        assert.equal(1,1);
+
+        // Tap button to open dialog
+        var button = accountbar.$.destroy_account;
+        button.fire('tap');
+        var dialog = accountbar.$.data_destruction_dialog;
+        dialog.addEventListener('iron-overlay-opened', function dialog_opened_handler(event){
+          dialog.removeEventListener(event.type, dialog_opened_handler);
+          // Verify dialog displays & contains correct elements
+          assert.equal(getComputedStyle(dialog.querySelector('#destroy_data_button')).display, 'block');
+          // Verify that you can destroy your account
+          // Submit form
+          dialog.querySelector('#destroy_data_button').fire('tap');
+          accountbar.addEventListener('account_destroyed', function(){
+            // SignUp the test user again so other tests will work.
+            // TODO: Later, we should make each setup function handle this better.
+            hoodie.account.signUp(username, password)
+            .done(function(){
+              // We call done() explicitly because signUp() resolves with the username
+              done();
+            })
+            // Let the test timeout if signUp failed, and log the error to the console.
+            .fail(function(error){
+              console.error(error);
+            });
+          });
+        });
       });
     
       test('should allow you to sign out', function() {
@@ -374,25 +480,104 @@
           User not authenticated
           Welcome message doesn't display
         */
-        assert.equal(1,1);
+
+        // Tap button to open dialog
+        var button = accountbar.$.signout_button;
+        button.fire('tap');
+        hoodie.account.on('signout', function(){
+          // Verify "Sign In" button displays
+          assert.equal(getComputedStyle(accountbar.$.signin_bar).display, 'block');
+          // Verify that the signedin_bar (and so its welcome message) doesn't display
+          assert.equal(getComputedStyle(accountbar.$.signedin_bar).display, 'none');
+        });
       });
     
     });
 
-    suite('State: Sign in with wrong credentials, or sign up with existing credentials', function(){
-      // TODO: Flesh out the tests
+    suite('State: Sign in with wrong credentials', function(){
 
-      setup('Before each test, sign out', function(done){
-        done();
+      setup('Before each test, sign out, then sign in with wrong credentials', function(done){
+        accountbar = fixture('basic');
+        hoodie = accountbar.hoodie;
+        var wrong_username = 'test-wrong';
+        var wrong_password = 'pw-wrong';
+        // Signout in case a user is signed in
+        hoodie.account.signOut()
+        .done(function(){
+          // Sign in with wrong credentials
+          // Tap button to open dialog
+          var button = accountbar.$.signin_button;
+          button.fire('tap');
+          var dialog = accountbar.$.signin_dialog;
+          dialog.addEventListener('iron-overlay-opened', function dialog_opened_handler(event){
+            dialog.removeEventListener(event.type, dialog_opened_handler);
+            dialog.querySelector('[label=Username]').value = wrong_username;
+            dialog.querySelector('[label=Password]').value = wrong_password;
+            // Submit form
+            dialog.querySelector('#destroy_data_button').fire('tap');
+            accountbar.addEventListener('account_destroyed', function(){
+              // SignUp the test user again so other tests will work.
+              // TODO: Later, we should make each setup function handle this better.
+              hoodie.account.signUp(username, password)
+              .done(function(){
+                // We call done() explicitly because signUp() resolves with the username
+                done();
+              })
+              // Let the test timeout if signUp failed, and log the error to the console.
+              .fail(function(error){
+                console.error(error);
+              });
+            });
+          });
+        });
       });
 
       test('should display an authentication error and prompt you to sign in again', function() {
         /*
         Authentication error. Sign in again
         */
-        assert.equal(1,1);
+
+        assert.notEqual(accountbar.$.signin_dialog.querySelector('.error_message').textContent, '');
       });
     
+
+      test('When you sign in, but authentication fails, the dialog should not close', function(done){
+        // TODO: Start here
+        assert.equal(getComputedStyle(accountbar.$.signin_dialog).display, 'block');
+        done();
+      });
+
+    });
+
+    suite('State: Sign up with existing credentials', function(){
+
+//       setup('Before each test, sign out, then sign in with wrong credentials', function(done){
+//         accountbar = fixture('basic');
+//         hoodie = accountbar.hoodie;
+//         var wrong_username = 'test-wrong';
+//         var wrong_password = 'pw-wrong';
+//         // Signout in case a user is signed in
+//         hoodie.account.signOut()
+//         .done(hoodie.account.signIn(wrong_username, wrong_password))
+//         // Wait for UI to update
+//         .done(flush(done));
+//       });
+
+//       test('should display an authentication error and prompt you to sign in again', function() {
+//         /*
+//         Authentication error. Sign in again
+//         */
+
+//         assert.notEqual(accountbar.$.signin_dialog.querySelector('.error_message').textContent, '');
+//       });
+    
+
+//       test('When you sign in, but authentication fails, the dialog should not close', function(done){
+//         // TODO: Start here
+//         assert.equal(getComputedStyle(accountbar.$.signin_dialog).display, 'block');
+//         done();
+//       });
+
     });
 
     </script>
