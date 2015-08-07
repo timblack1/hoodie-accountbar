@@ -544,6 +544,8 @@
               }else{
                 // It should reopen the dialog
                 assert.equal(getComputedStyle(accountbar.$.signin_dialog).display, 'block');
+                // TODO: Start here.  It does not yet reopen the dialog when I test it manually.
+                //  Strangely, this test passes when run alone, but fails when it's run with all suites.
                 //debugger;
                 // It should display an authentication error
                 assert.equal(accountbar.$.signin_dialog.querySelector('.error_message').textContent, 'Authentication failed.  Please sign in again.');
