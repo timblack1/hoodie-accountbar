@@ -156,7 +156,7 @@
         dialog.addEventListener('iron-overlay-opened', function dialog_opened_handler(event){
           dialog.removeEventListener(event.type, dialog_opened_handler);
           // Verify dialog displays & contains correct elements
-          // Note:  Query by [label=] since the dialogs can't use IDs.
+          // Note:  Query by [label=] since the dialogs can't use IDs when they duplicate elements.
           assert.equal(getComputedStyle(dialog.querySelector('[label=Username]')).display, 'block');
           assert.equal(getComputedStyle(dialog.querySelector('[label=Password]')).display, 'block');
           assert.equal(getComputedStyle(dialog.querySelector('[label="Confirm password"]')).display, 'block');
@@ -496,46 +496,39 @@
 
     suite('State: Sign in with wrong credentials', function(){
 
-      setup('Before each test, sign out, then sign in with wrong credentials', function(done){
+      setup('Before each test, sign out', function(done){
         accountbar = fixture('basic');
         hoodie = accountbar.hoodie;
         var wrong_username = 'test-wrong';
         var wrong_password = 'pw-wrong';
         // Signout in case a user is signed in
         hoodie.account.signOut()
-        .done(function(){
-          // Sign in with wrong credentials
-          // Tap button to open dialog
-          var button = accountbar.$.signin_button;
-          button.fire('tap');
-          var dialog = accountbar.$.signin_dialog;
-          dialog.addEventListener('iron-overlay-opened', function dialog_opened_handler(event){
-            dialog.removeEventListener(event.type, dialog_opened_handler);
-            dialog.querySelector('[label=Username]').value = wrong_username;
-            dialog.querySelector('[label=Password]').value = wrong_password;
-            // Submit form
-            dialog.querySelector('#destroy_data_button').fire('tap');
-            accountbar.addEventListener('account_destroyed', function(){
-              // SignUp the test user again so other tests will work.
-              // TODO: Later, we should make each setup function handle this better.
-              hoodie.account.signUp(username, password)
-              .done(function(){
-                // We call done() explicitly because signUp() resolves with the username
-                done();
-              })
-              // Let the test timeout if signUp failed, and log the error to the console.
-              .fail(function(error){
-                console.error(error);
-              });
-            });
-          });
-        });
+        .done(done);
       });
 
-      test('should display an authentication error and prompt you to sign in again', function() {
+      test('Should display an authentication error and prompt you to sign in again', function() {
         /*
         Authentication error. Sign in again
         */
+
+        // Sign in with wrong credentials
+        // Tap button to open dialog
+        var button = accountbar.$.signin_button;
+        button.fire('tap');
+        var dialog = accountbar.$.signin_dialog;
+        dialog.addEventListener('iron-overlay-opened', function dialog_opened_handler(event){
+          dialog.removeEventListener(event.type, dialog_opened_handler);
+          dialog.querySelector('[label=Username]').value = wrong_username;
+          dialog.querySelector('[label=Password]').value = wrong_password;
+          // Submit form
+          dialog.querySelector('#signin_dialog_button').fire('tap');
+          accountbar.addEventListener('signin', function(){
+            done();
+          });
+          hoodie.on('account:error:unauthenticated remote:error:unauthenticated', function(){
+            done();
+          });
+        });
 
         assert.notEqual(accountbar.$.signin_dialog.querySelector('.error_message').textContent, '');
       });
@@ -551,6 +544,7 @@
 
     suite('State: Sign up with existing credentials', function(){
 
+      test('test', function(){});
 //       setup('Before each test, sign out, then sign in with wrong credentials', function(done){
 //         accountbar = fixture('basic');
 //         hoodie = accountbar.hoodie;
