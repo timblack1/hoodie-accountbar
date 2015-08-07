@@ -251,9 +251,7 @@ Example:
         </paper-button>
         <paper-button dialog-confirm
           id="destroy_data_button"
-          on-tap="destroy_data_confirmed">
-          Destroy Account
-        </paper-button>
+          on-tap="destroy_data_confirmed">{{data_destruction_button_text}}</paper-button>
       </div>
     </paper-dialog>
 
@@ -339,12 +337,14 @@ Example:
     destroy_account:function(){
       this.hide_menus();
       this.destroy_data_question = 'Are you sure you want to destroy your account?';
+      this.data_destruction_button_text = 'Destroy Account';
       this.$.data_destruction_dialog.open();
     },
     // Display the clear local data dialog
     clear_local_data:function(){
       this.hide_menus();
       this.destroy_data_question = 'Are you sure you want to clear your local data from your browser?';
+      this.data_destruction_button_text = 'Clear Local Data';
       this.$.data_destruction_dialog.open();
     },
     /**
@@ -446,6 +446,7 @@ Example:
     _magic_fail:function(error){
       this.error_message = 'Authentication failed.  Please sign in again.';
       this.error_details = 'Error: ' + error.status + ' - ' + error.name + '. Reason: ' + error.message;
+      this.close_all_dialogs();
       this.$.signin_dialog.open();
       this.fire('authentication-failed');
     },
