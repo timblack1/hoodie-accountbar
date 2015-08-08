@@ -93,42 +93,63 @@
     // Configure defaults
     var username = 'test';
     var password = 'pw';
-    var wrong_username = 'test-wrong';
-    var wrong_password = 'pw-wrong';
+    var wrong_username = 'test_wrong';
+    var wrong_password = 'pw_wrong';
     var hoodie;
     var accountbar;
 
-    // Utility function
+    // -------- BEGIN Utility functions ---------
+
     function delete_localstorage_signedin_record(){
-      // Remove the record that the user has signed in before through Hoodie.
+      // Remove the record that the user has signed in previously through Hoodie.
       localStorage.removeItem('has_signed_in_through_hoodie');
     }
 
+    function create_localstorage_signedin_record(){
+      // Create the record that the user has signed in previously through Hoodie.
+      localStorage['has_signed_in_through_hoodie'] = true;
+    }
 
+    function create_test_user_account(hoodie){
+      hoodie.account.signUp(username, password);
+    }
+
+    function destroy_test_user_account(hoodie, flush, done){
+      // TODO: This works if the user is signed in.  It doesn't work if the
+      //  user account has already been destroyed in CouchDB.  Then it returns
+      //  a 401 Unauthorized error:  "Name or password is incorrect."
+      if (typeof hoodie.account.username !== 'undefined'){
+        // User is signed in, so destroy account and delete localStorage signed in record
+        hoodie.account.destroy()
+        .done(delete_localstorage_signedin_record())
+        .done(flush(done));
+      }else{
+        // User is not signed in, so attempt to sign in as test user
+        hoodie.account.signIn(username, password)
+        // If successful, destroy account and delete localStorage signed in record
+        .done(hoodie.account.destroy())
+        .done(delete_localstorage_signedin_record())
+        // Wait for UI to update
+        .done(flush(done))
+        // Else wait for UI to update
+        .fail(flush(done));
+      }
+    }
+
+    // -------- END Utility functions ---------
+    
     suite('Signed-out state, browser has never signed in', function(){
 
-      setup('Before each test, destroy test user account and delete localstorage record', function destroy_account_and_delete_localstorage_record(done){
+      setup('Before each test, destroy test user account and delete localstorage record', function(done){
         accountbar = fixture('basic');
         hoodie = accountbar.hoodie;
-        // TODO: This works if the user is signed in.  It doesn't work if the
-        //  user account has already been destroyed in CouchDB.  Then it returns
-        //  a 401 Unauthorized error:  "Name or password is incorrect."
-        if (typeof hoodie.account.username !== 'undefined'){
-          // User is signed in, so destroy account and delete localStorage signed in record
-          hoodie.account.destroy()
-          .done(delete_localstorage_signedin_record())
-          .done(flush(done));
-        }else{
-          // User is not signed in, so attempt to sign in as test user
-          hoodie.account.signIn(username, password)
-          // If successful, destroy account and delete localStorage signed in record
-          .done(hoodie.account.destroy())
-          .done(delete_localstorage_signedin_record())
-          // Wait for UI to update
-          .done(flush(done))
-          // Else wait for UI to update
-          .fail(flush(done));
-        }
+        destroy_test_user_account(hoodie, flush, done);
+      });
+
+      teardown('After each test, destroy test user account adn delete localstorage record', function(done){
+        accountbar = fixture('basic');
+        hoodie = accountbar.hoodie;
+        destroy_test_user_account(hoodie, flush, done);
       });
 
       test('should display the "Sign Up" button', function() {
@@ -151,26 +172,31 @@
             "Sign Up" button
           Auth function()
         */
+        
         // Tap button to open dialog
         var button = accountbar.$.signup_button;
         button.fire('tap');
         var dialog = accountbar.$.signup_dialog;
         dialog.addEventListener('iron-overlay-opened', function dialog_opened_handler(event){
           dialog.removeEventListener(event.type, dialog_opened_handler);
+        
           // Verify dialog displays & contains correct elements
           // Note:  Query by [label=] since the dialogs can't use IDs when they duplicate elements.
           assert.equal(getComputedStyle(dialog.querySelector('[label=Username]')).display, 'block');
           assert.equal(getComputedStyle(dialog.querySelector('[label=Password]')).display, 'block');
           assert.equal(getComputedStyle(dialog.querySelector('[label="Confirm password"]')).display, 'block');
           assert.equal(getComputedStyle(dialog.querySelector('#signup_dialog_button')).display, 'block');
+        
           // Verify that you can sign up
           dialog.querySelector('[label=Username]').value = username;
           dialog.querySelector('[label=Password]').value = password;
           dialog.querySelector('[label="Confirm password"]').value = password;
           // Flush events to permit paper-inputs to register their new values
           flush(function(){
+        
             // Sign up
             dialog.querySelector('#signup_dialog_button').fire('tap');
+        
             // Verify the username is displayed
             assert.equal(accountbar.$.username_span.textContent, username);
             // Verify the signout button is displayed
@@ -198,7 +224,7 @@
         hoodie.account.signOut()
         // Wait for UI to update
         .done(flush(function(){
-          localStorage['has_signed_in_through_hoodie'] = 'true';
+          create_localstorage_signedin_record();
           done();
         }));
       });
@@ -374,7 +400,7 @@
         Change Username
         */
 
-        var new_username = 'test-changed';
+        var new_username = 'test_changed';
 
         // Tap button to open dialog
         var button = accountbar.$.changeusername_button;
@@ -414,7 +440,7 @@
           the password back to its original value.
         */
 
-        var new_password = 'pw-changed';
+        var new_password = 'pw_changed';
 
         // Tap button to open dialog
         var button = accountbar.$.changepassword_button;
