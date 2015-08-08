@@ -403,47 +403,46 @@ Example:
     },
     // Handle the submission events of the dialogs which contain a username or password.
     _handleSubmit:function(event) {
-      var magic;
-
       // Get the id of the button that was clicked
       // Note: Using Polymer.dom() throws an error in some tests.
       // var mode = Polymer.dom(event.target).parentNode.host.id;
       var mode = event.target.id;
-
+      
       switch(mode) {
         case 'signin_dialog_button':
-          magic = this.hoodie.account.signIn(this.username, this.password)
-            .done(this._magic_done.bind(this)).fail(this._magic_fail.bind(this));
+          this.hoodie.account.signIn(this.username, this.password)
+            .done(this._account_action_done.bind(this)).fail(this._account_action_fail.bind(this));
           break;
         case 'signup_dialog_button':
-          magic = this.hoodie.account.signUp(this.username, this.password)
-            .done(this._magic_done.bind(this)).fail(this._magic_fail.bind(this));
+          // TODO: Test that password === password_confirmation #19
+          this.hoodie.account.signUp(this.username, this.password)
+            .done(this._account_action_done.bind(this)).fail(this._account_action_fail.bind(this));
           break;
         case 'changepassword_dialog_button':
-          magic = this.hoodie.account.changePassword(null, this.new_password)
-            .done(this._magic_done.bind(this)).fail(this._magic_fail.bind(this));
+          this.hoodie.account.changePassword(null, this.new_password)
+            .done(this._account_action_done.bind(this)).fail(this._account_action_fail.bind(this));
           break;
         case 'changeusername_dialog_button':
-          magic = this.hoodie.account.changeUsername(this.current_password, this.new_username)
-            .done(this._magic_done.bind(this)).fail(this._magic_fail.bind(this));
+          this.hoodie.account.changeUsername(this.current_password, this.new_username)
+            .done(this._account_action_done.bind(this)).fail(this._account_action_fail.bind(this));
           break;
         case 'forgotpassword_dialog_button':
           var thiz = this;
-          magic = this.hoodie.account.resetPassword(this.email)
+          this.hoodie.account.resetPassword(this.email)
           .done(function() {
             window.alert('Sending new password to ' + thiz.email);
           })
-          .fail(this._magic_fail.bind(this));
+          .fail(this._account_action_fail.bind(this));
           break;
       }
     },
-    _magic_done:function(){
+    _account_action_done:function(){
       this.error_message = '';
       this.error_details = '';
       this.close_all_dialogs();
       this.show_only_these_elements('signedin_bar');
     },
-    _magic_fail:function(error){
+    _account_action_fail:function(error){
       this.error_message = 'Authentication failed.  Please sign in again.';
       this.error_details = 'Error: ' + error.status + ' - ' + error.name + '. Reason: ' + error.message;
       this.close_all_dialogs();

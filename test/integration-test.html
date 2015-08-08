@@ -15,7 +15,7 @@
   </head>
   <body>
 
-    <test-fixture id="basic">
+    <test-fixture id="integration">
       <template>
         <hoodie-accountbar></hoodie-accountbar>
       </template>
@@ -156,13 +156,13 @@
     suite('Signed-out state, browser has never signed in', function(){
 
       setup('Before each test, destroy test user account and delete localstorage record', function(done){
-        accountbar = fixture('basic');
+        accountbar = fixture('integration');
         hoodie = accountbar.hoodie;
         destroy_test_user_account(hoodie, flush, done);
       });
 
       teardown('After each test, destroy test user account and delete localstorage record', function(done){
-        accountbar = fixture('basic');
+        accountbar = fixture('integration');
         hoodie = accountbar.hoodie;
         destroy_test_user_account(hoodie, flush, done);
       });
@@ -232,7 +232,7 @@
     suite('Signed-out state, browser has signed in before', function(){
 
       setup('Before each test, create test user account, signout, and set localstorage record that this browser has signed in', function(done){
-        accountbar = fixture('basic');
+        accountbar = fixture('integration');
         hoodie = accountbar.hoodie;
         create_test_user_account(hoodie, function(){
           // Signout in case a user is signed in
@@ -246,7 +246,7 @@
       });
 
       teardown('After each test, destroy test user account and delete localstorage record', function(done){
-        accountbar = fixture('basic');
+        accountbar = fixture('integration');
         hoodie = accountbar.hoodie;
         destroy_test_user_account(hoodie, flush, done);
       });
@@ -260,7 +260,7 @@
     suite('Signed-out state, browser has or has not signed in', function(){
 
       setup('Before each test, create test user account and signout', function signout(done){
-        accountbar = fixture('basic');
+        accountbar = fixture('integration');
         hoodie = accountbar.hoodie;
         create_test_user_account(hoodie, function(){
           // Signout in case a user is signed in
@@ -278,7 +278,7 @@
       });
 
       teardown('After each test, destroy test user account and delete localstorage record', function(done){
-        accountbar = fixture('basic');
+        accountbar = fixture('integration');
         hoodie = accountbar.hoodie;
         destroy_test_user_account(hoodie, flush, done);
       });
@@ -338,18 +338,20 @@
     suite('Signed-out state', function(){
 
       setup('Before each test, create test user account and sign out', function(done){
-        accountbar = fixture('basic');
+        accountbar = fixture('integration');
         hoodie = accountbar.hoodie;
         create_test_user_account(hoodie, function(){
           // Signout in case a user is signed in
           hoodie.account.signOut()
           // Wait for UI to update
-          .done(flush(done));
+          .done(function(){
+            flush(done);
+          });
         });
       });
 
       teardown('After each test, destroy test user account and delete localstorage record', function(done){
-        accountbar = fixture('basic');
+        accountbar = fixture('integration');
         hoodie = accountbar.hoodie;
         destroy_test_user_account(hoodie, flush, done);
       });
@@ -414,10 +416,11 @@
           // Verify that you can destroy local data
           // Submit form
           dialog.querySelector('#destroy_data_button').fire('tap');
-          flush(function(){
+          accountbar.addEventListener('account_destroyed', function data_destroyed_handler(event){
+            accountbar.removeEventListener(event.type, data_destroyed_handler);
             // Verify the local data is gone
             var hoodie_config = localStorage.getItem('_hoodie_config');
-            assert.equal(hoodie_config, null);
+            assert.includeMembers(['{}', null], [hoodie_config], 'hoodie_config should be an empty object or null');
             done();
           });
         });
@@ -428,7 +431,7 @@
     suite('Signed-in state', function(){
       
       setup('Before each test, create test user account and sign in', function(done){
-        accountbar = fixture('basic');
+        accountbar = fixture('integration');
         hoodie = accountbar.hoodie;
         create_test_user_account(hoodie, function(){
           // Signin in case a user is signed out
@@ -436,12 +439,22 @@
           // Wait for UI to update
           .done(function(){
             flush(done);
+          })
+          .fail(function(error){
+            console.error(error);
+            hoodie.account.signUp(username, password)
+            .done(function(){
+              console.log('I wasn\'t able to signin, but was able to signup, so we\'re good.');
+              done();
+            })
+            // TODO: start here.  It says "Name or password is incorrect."
+            .fail(console.error);
           });
         });
       });
 
       teardown('After each test, destroy test user account and delete localstorage record', function(done){
-        accountbar = fixture('basic');
+        accountbar = fixture('integration');
         hoodie = accountbar.hoodie;
         destroy_test_user_account(hoodie, flush, done);
       });
@@ -560,7 +573,7 @@
     suite('State: Sign in with wrong credentials', function(){
 
       setup('Before each test, create test user account and sign out', function(done){
-        accountbar = fixture('basic');
+        accountbar = fixture('integration');
         hoodie = accountbar.hoodie;
         create_test_user_account(hoodie, function(){
           // Signout in case a user is signed in
@@ -572,7 +585,7 @@
       });
 
       teardown('After each test, destroy test user account and delete localstorage record', function(done){
-        accountbar = fixture('basic');
+        accountbar = fixture('integration');
         hoodie = accountbar.hoodie;
         destroy_test_user_account(hoodie, flush, done);
       });
@@ -628,7 +641,7 @@
     suite('State: Sign up with existing credentials', function(){
 
       setup('Before each test, create test user account and sign out', function(done){
-        accountbar = fixture('basic');
+        accountbar = fixture('integration');
         hoodie = accountbar.hoodie;
         create_test_user_account(hoodie, function(){
           // Signout in case a user is signed in
@@ -640,14 +653,14 @@
       });
 
       teardown('After each test, destroy test user account and delete localstorage record', function(done){
-        accountbar = fixture('basic');
+        accountbar = fixture('integration');
         hoodie = accountbar.hoodie;
         destroy_test_user_account(hoodie, flush, done);
       });
 
       test('test', function(){});
 //       setup('Before each test, sign out, then sign in with wrong credentials', function(done){
-//         accountbar = fixture('basic');
+//         accountbar = fixture('integration');
 //         hoodie = accountbar.hoodie;
 //         var wrong_username = 'test-wrong';
 //         var wrong_password = 'pw-wrong';

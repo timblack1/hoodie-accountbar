@@ -34,7 +34,7 @@ var AUTOPREFIXER_BROWSERS = [
 gulp.task('jshint', function () {
   return gulp.src([
       'hoodie-accountbar.html',
-      'test/basic-test.html'
+      'test/integration-test.html'
     ])
     .pipe(reload({stream: true, once: true}))
     .pipe($.jshint.extract()) // Extract JS from .html files
@@ -100,8 +100,8 @@ gulp.task('serve', ['hoodie_start'], function () {
     }
   });
 
-  gulp.watch(['hoodie-accountbar.html', 'test/basic-test.html'], reload);
-  gulp.watch(['hoodie-accountbar.html', 'test/basic-test.html'], ['jshint']);
+  gulp.watch(['hoodie-accountbar.html', 'test/integration-test.html'], reload);
+  gulp.watch(['hoodie-accountbar.html', 'test/integration-test.html'], ['jshint']);
 });
 
 // Build Production Files, the Default Task
