@@ -107,11 +107,22 @@
 
     function create_localstorage_signedin_record(){
       // Create the record that the user has signed in previously through Hoodie.
-      localStorage['has_signed_in_through_hoodie'] = true;
+      localStorage['has_signed_in_through_hoodie'] = 'true';
     }
 
-    function create_test_user_account(hoodie){
-      hoodie.account.signUp(username, password);
+    function create_test_user_account(hoodie, done){
+      // Sign out in case previous calls to hoodie.account.destroy() failed.
+      hoodie.account.signOut({ignoreLocalChanges: true})
+      .done(hoodie.account.signUp(username, password))
+      .done(function(){
+        done();
+      })
+      // If it fails, that probably just means the user account already exists,
+      //  which is not a problem for us.
+      .fail(function(error){
+        console.error(error);
+        done();
+      });
     }
 
     function destroy_test_user_account(hoodie, flush, done){
@@ -130,9 +141,13 @@
         .done(hoodie.account.destroy())
         .done(delete_localstorage_signedin_record())
         // Wait for UI to update
-        .done(flush(done))
-        // Else wait for UI to update
-        .fail(flush(done));
+        .done(function(){
+          flush(done);
+        })
+        // Else wait for UI to update (do the same thing as above)
+        .fail(function(){
+          flush(done);
+        });
       }
     }
 
@@ -146,7 +161,7 @@
         destroy_test_user_account(hoodie, flush, done);
       });
 
-      teardown('After each test, destroy test user account adn delete localstorage record', function(done){
+      teardown('After each test, destroy test user account and delete localstorage record', function(done){
         accountbar = fixture('basic');
         hoodie = accountbar.hoodie;
         destroy_test_user_account(hoodie, flush, done);
@@ -199,10 +214,9 @@
         
             // Verify the username is displayed
             assert.equal(accountbar.$.username_span.textContent, username);
-            // Verify the signout button is displayed
             hoodie.account.on('signup', function signin_handler(){
               flush(function(){
-                // Verify the "Sign out" button is displayed
+                // Verify the "Sign Out" button is displayed
                 assert.equal(getComputedStyle(accountbar.$.signout_button).display, 'inline-block');
                 assert.equal(accountbar.$.signout_button.textContent.trim(), 'Sign Out');
                 done();
@@ -217,20 +231,24 @@
 
     suite('Signed-out state, browser has signed in before', function(){
 
-      setup('Before each test, signout and set localstorage record that this browser has signed in', function(done){
+      setup('Before each test, create test user account, signout, and set localstorage record that this browser has signed in', function(done){
         accountbar = fixture('basic');
         hoodie = accountbar.hoodie;
-        // Signout in case a user is signed in
-        hoodie.account.signOut()
-        // Wait for UI to update
-        .done(flush(function(){
-          create_localstorage_signedin_record();
-          done();
-        }));
+        create_test_user_account(hoodie, function(){
+          // Signout in case a user is signed in
+          hoodie.account.signOut()
+          // Wait for UI to update
+          .done(flush(function(){
+            create_localstorage_signedin_record();
+            done();
+          }));
+        });
       });
 
-      teardown('After each test, remove localstorage record that this browser has signed in', function(){
-        delete_localstorage_signedin_record();
+      teardown('After each test, destroy test user account and delete localstorage record', function(done){
+        accountbar = fixture('basic');
+        hoodie = accountbar.hoodie;
+        destroy_test_user_account(hoodie, flush, done);
       });
 
       test('should display the "Sign In" button', function() {
@@ -241,13 +259,28 @@
 
     suite('Signed-out state, browser has or has not signed in', function(){
 
-      setup('Before each test, signout', function signout(done){
+      setup('Before each test, create test user account and signout', function signout(done){
         accountbar = fixture('basic');
         hoodie = accountbar.hoodie;
-        // Signout in case a user is signed in
-        hoodie.account.signOut()
-        // Wait for UI to update
-        .done(flush(done));
+        create_test_user_account(hoodie, function(){
+          // Signout in case a user is signed in
+          hoodie.account.signOut()
+          // Wait for UI to update
+          // .done(flush(done));
+          .done(function(){
+            flush(done);
+          })
+          .fail(function(error){
+            console.log('Failed to sign out!');
+            console.error(error);
+          });
+        });
+      });
+
+      teardown('After each test, destroy test user account and delete localstorage record', function(done){
+        accountbar = fixture('basic');
+        hoodie = accountbar.hoodie;
+        destroy_test_user_account(hoodie, flush, done);
       });
 
       test('should let you sign in', function(done) {
@@ -304,20 +337,28 @@
 
     suite('Signed-out state', function(){
 
-      setup('Before each test, sign out', function(done){
+      setup('Before each test, create test user account and sign out', function(done){
         accountbar = fixture('basic');
         hoodie = accountbar.hoodie;
-        // Signout in case a user is signed in
-        hoodie.account.signOut()
-        // Wait for UI to update
-        .done(flush(done));
+        create_test_user_account(hoodie, function(){
+          // Signout in case a user is signed in
+          hoodie.account.signOut()
+          // Wait for UI to update
+          .done(flush(done));
+        });
+      });
+
+      teardown('After each test, destroy test user account and delete localstorage record', function(done){
+        accountbar = fixture('basic');
+        hoodie = accountbar.hoodie;
+        destroy_test_user_account(hoodie, flush, done);
       });
 
       /**
        * TODO: I don't know how to get the new password out of my email here to know whether the integration worked.
        *    It would be fine to just test for the 'passwordreset' event, but then we don't know the user's new password,
        *    so this test is disabled for now.  Maybe someday we can write a way to delete the test user from the
-       *    database after this test is done.
+       *    database after this test is done. #18
        */
 //       test('should allow you to get a new password', function() {
 //         /*
@@ -386,13 +427,23 @@
 
     suite('Signed-in state', function(){
       
-      setup('Before each test, sign in', function(done){
+      setup('Before each test, create test user account and sign in', function(done){
         accountbar = fixture('basic');
         hoodie = accountbar.hoodie;
-        // Signin in case a user is signed out
-        hoodie.account.signIn(username, password)
-        // Wait for UI to update
-        .done(flush(done));
+        create_test_user_account(hoodie, function(){
+          // Signin in case a user is signed out
+          hoodie.account.signIn(username, password)
+          // Wait for UI to update
+          .done(function(){
+            flush(done);
+          });
+        });
+      });
+
+      teardown('After each test, destroy test user account and delete localstorage record', function(done){
+        accountbar = fixture('basic');
+        hoodie = accountbar.hoodie;
+        destroy_test_user_account(hoodie, flush, done);
       });
 
       test('should allow you to change your username', function(done) {
@@ -420,15 +471,7 @@
           hoodie.account.on('changeusername', function(){
             // Verify the username has changed
             assert.equal(hoodie.account.username, new_username);
-            // Set username back to original value so other tests will work
-            hoodie.account.changeUsername(password, username)
-            .done(function(){
-              done();
-            })
-            // Let the test timeout if something above failed, and log the error to the console.
-            .fail(function(error){
-              console.error(error);
-            });
+            done();
           });
         });
       });
@@ -461,15 +504,11 @@
             // Verify the password has changed
             hoodie.account.signOut()
             .done(hoodie.account.signIn(username, new_password))
-            // Set password back to original value so other tests will work
-            .done(hoodie.account.changePassword(new_password, password))
             .done(function(){
               done();
             })
-            // Let the test timeout if something above failed, and log the error to the console.
-            .fail(function(error){
-              console.error(error);
-            });
+            // Let the test time out if something above failed.
+            .fail();
           });
         });
       });
@@ -492,17 +531,7 @@
           dialog.querySelector('#destroy_data_button').fire('tap');
           accountbar.addEventListener('account_destroyed', function signup_user(){
             accountbar.removeEventListener(event.type, signup_user);
-            // SignUp the test user again so other tests will work.
-            // TODO: Later, we should make each setup function handle this better.
-            hoodie.account.signUp(username, password)
-            .done(function(){
-              // We call done() explicitly because signUp() resolves with the username
-              done();
-            })
-            // Let the test timeout if signUp failed, and log the error to the console.
-            .fail(function(error){
-              console.error(error);
-            });
+            done();
           });
         });
       });
@@ -530,12 +559,22 @@
 
     suite('State: Sign in with wrong credentials', function(){
 
-      setup('Before each test, sign out', function(done){
+      setup('Before each test, create test user account and sign out', function(done){
         accountbar = fixture('basic');
         hoodie = accountbar.hoodie;
-        // Signout in case a user is signed in
-        hoodie.account.signOut()
-        .done(done);
+        create_test_user_account(hoodie, function(){
+          // Signout in case a user is signed in
+          hoodie.account.signOut()
+          .done(function(){
+            done();
+          });
+        });
+      });
+
+      teardown('After each test, destroy test user account and delete localstorage record', function(done){
+        accountbar = fixture('basic');
+        hoodie = accountbar.hoodie;
+        destroy_test_user_account(hoodie, flush, done);
       });
 
       test('should reopen the dialog, and should display an authentication error (and prompt the user to sign in again)', function(done) {
@@ -587,6 +626,24 @@
     });
 
     suite('State: Sign up with existing credentials', function(){
+
+      setup('Before each test, create test user account and sign out', function(done){
+        accountbar = fixture('basic');
+        hoodie = accountbar.hoodie;
+        create_test_user_account(hoodie, function(){
+          // Signout in case a user is signed in
+          hoodie.account.signOut()
+          .done(function(){
+            done();
+          });
+        });
+      });
+
+      teardown('After each test, destroy test user account and delete localstorage record', function(done){
+        accountbar = fixture('basic');
+        hoodie = accountbar.hoodie;
+        destroy_test_user_account(hoodie, flush, done);
+      });
 
       test('test', function(){});
 //       setup('Before each test, sign out, then sign in with wrong credentials', function(done){
