@@ -419,7 +419,7 @@ Example:
             .done(this._account_action_done.bind(this)).fail(this._account_action_fail.bind(this));
           break;
         case 'changepassword_dialog_button':
-          this.hoodie.account.changePassword(null, this.new_password)
+          this.hoodie.account.changePassword(this.current_password, this.new_password)
             .done(this._account_action_done.bind(this)).fail(this._account_action_fail.bind(this));
           break;
         case 'changeusername_dialog_button':
