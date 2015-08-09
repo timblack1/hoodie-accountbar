@@ -111,44 +111,59 @@
     }
 
     function create_test_user_account(hoodie, done){
-      // Sign out in case previous calls to hoodie.account.destroy() failed.
-      hoodie.account.signOut({ignoreLocalChanges: true})
-      .done(hoodie.account.signUp(username, password))
-      .done(function(){
-        done();
-      })
-      // If it fails, that probably just means the user account already exists,
-      //  which is not a problem for us.
-      .fail(function(error){
-        console.error(error);
-        done();
-      });
+//       // Sign out in case previous calls to hoodie.account.destroy() failed.
+//       hoodie.account.signOut({ignoreLocalChanges: true})
+//       .done(hoodie.account.signUp(username, password))
+      return Promise.resolve().then(function(){
+        return hoodie.account.signUp(username, password)
+        .then(function(){
+          return done();
+        })
+        // If it fails, that probably just means the user account already exists,
+        //  which is not a problem for us.
+        .fail(function(error){
+          console.log(error);
+          return done();
+        });
+      }).catch(console.log.bind(console));
     }
 
     function destroy_test_user_account(hoodie, flush, done){
       // TODO: This works if the user is signed in.  It doesn't work if the
       //  user account has already been destroyed in CouchDB.  Then it returns
       //  a 401 Unauthorized error:  "Name or password is incorrect."
-      if (typeof hoodie.account.username !== 'undefined'){
-        // User is signed in, so destroy account and delete localStorage signed in record
-        hoodie.account.destroy()
-        .done(delete_localstorage_signedin_record())
-        .done(flush(done));
-      }else{
-        // User is not signed in, so attempt to sign in as test user
-        hoodie.account.signIn(username, password)
-        // If successful, destroy account and delete localStorage signed in record
-        .done(hoodie.account.destroy())
-        .done(delete_localstorage_signedin_record())
-        // Wait for UI to update
-        .done(function(){
-          flush(done);
-        })
-        // Else wait for UI to update (do the same thing as above)
-        .fail(function(){
-          flush(done);
-        });
-      }
+      return Promise.resolve().then(function(){
+        if (typeof hoodie.account.username !== 'undefined'){
+          // User is signed in, so destroy account and delete localStorage signed in record
+          return hoodie.account.destroy()
+          .then(function(){
+            console.log('Account was destroyed!');
+            console.log('Deleting localstorage record');
+            return delete_localstorage_signedin_record();
+          })
+          .then(function(){
+            return flush(done);
+          });
+        }else{
+          // User is not signed in, so attempt to sign in as test user
+          return hoodie.account.signIn(username, password)
+          // If successful, destroy account and delete localStorage signed in record
+          .then(function(){
+            return hoodie.account.destroy();
+          })
+          .then(function(){
+            return delete_localstorage_signedin_record();
+          })
+          // Wait for UI to update
+          .then(function(){
+            return flush(done);
+          })
+          // Else wait for UI to update (do the same thing as above)
+          .fail(function(){
+            return flush(done);
+          });
+        }        
+      }).catch(console.log.bind(console));
     }
 
     // -------- END Utility functions ---------
@@ -434,22 +449,23 @@
         accountbar = fixture('integration');
         hoodie = accountbar.hoodie;
         create_test_user_account(hoodie, function(){
-          // Signin in case a user is signed out
-          hoodie.account.signIn(username, password)
-          // Wait for UI to update
-          .done(function(){
-            flush(done);
-          })
-          .fail(function(error){
-            console.error(error);
-            hoodie.account.signUp(username, password)
-            .done(function(){
-              console.log('I wasn\'t able to signin, but was able to signup, so we\'re good.');
-              done();
-            })
-            // TODO: start here.  It says "Name or password is incorrect."
-            .fail(console.error);
-          });
+//           // Signin in case a user is signed out
+//           hoodie.account.signIn(username, password)
+//           // Wait for UI to update
+//           .done(function(){
+//             flush(done);
+//           })
+//           .fail(function(error){
+//             console.error(error);
+//             hoodie.account.signUp(username, password)
+//             .done(function(){
+//               console.log('I wasn\'t able to signin, but was able to signup, so we\'re good.');
+//               done();
+//             })
+//             // TODO: start here.  It says "Name or password is incorrect."
+//             .fail(console.error);
+//           });
+          done();
         });
       });
 
@@ -515,13 +531,17 @@
           dialog.querySelector('#changepassword_dialog_button').fire('tap');
           hoodie.account.on('changepassword', function(){
             // Verify the password has changed
+            debugger;
             hoodie.account.signOut()
             .done(hoodie.account.signIn(username, new_password))
             .done(function(){
+              debugger;
               done();
             })
             // Let the test time out if something above failed.
-            .fail();
+            .fail(function(){
+              debugger;
+            }).catch(console.log.bind(console));
           });
         });
       });
