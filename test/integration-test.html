@@ -421,6 +421,82 @@
         });
       });
 
+      test('Attempt to sign in with wrong credentials.  Should reopen the dialog, and should display an' +
+            'authentication error (and prompt the user to sign in again)', function(done) {
+        /*
+        Authentication error. Sign in again
+        */
+
+        function verify_signin_reopened_and_displays_error(done){
+          // It should reopen the dialog
+          assert.equal(getComputedStyle(accountbar.$.signin_dialog).display, 'block');
+          // TODO: Start here.  It does not yet reopen the dialog when I test it manually.
+          //  Strangely, this test passes when run alone, but fails when it's run with all suites.
+          // It should display an authentication error
+          assert.equal(accountbar.$.signin_dialog.querySelector('.error_message').textContent, 'Authentication failed.  Please sign in again.');
+          done();
+        }
+
+        // Sign in with wrong credentials
+        // Tap button to open dialog
+        var button = accountbar.$.signin_button;
+        button.fire('tap');
+        var dialog = accountbar.$.signin_dialog;
+        dialog.addEventListener('iron-overlay-opened', function dialog_opened_handler(event){
+          dialog.removeEventListener(event.type, dialog_opened_handler);
+          dialog.querySelector('[label=Username]').value = wrong_username;
+          dialog.querySelector('[label=Password]').value = wrong_password;
+          // Allow paper inputs time to register their new values
+          flush(function(){
+            // Submit form
+            dialog.querySelector('#signin_dialog_button').fire('tap');
+            accountbar.addEventListener('authentication-failed', function authentication_failed(event){
+              accountbar.removeEventListener(event.type, authentication_failed);
+              if (getComputedStyle(accountbar.$.signin_dialog).display === 'block'){
+                verify_signin_reopened_and_displays_error(done);
+              }else{
+                // Wait for dialog to open
+                accountbar.$.signin_dialog.addEventListener('iron-overlay-opened', function dialog_opened_handler2(event){
+                  accountbar.$.signin_dialog.removeEventListener(event.type, dialog_opened_handler2);
+                  verify_signin_reopened_and_displays_error(done);
+                });
+              }
+            });
+          });
+        });
+      });
+
+      test('Attempt to sign in with existing credentials.  Should reopen the dialog, and should display an' +
+            'authentication error (and prompt the user to sign in again)', function(){
+        assert.equal(1,0);      
+      });
+//       setup('Before each test, sign out, then sign in with wrong credentials', function(done){
+//         accountbar = fixture('integration');
+//         hoodie = accountbar.hoodie;
+//         var wrong_username = 'test-wrong';
+//         var wrong_password = 'pw-wrong';
+//         // Signout in case a user is signed in
+//         hoodie.account.signOut()
+//         .done(hoodie.account.signIn(wrong_username, wrong_password))
+//         // Wait for UI to update
+//         .done(flush(done));
+//       });
+
+//       test('should display an authentication error and prompt you to sign in again', function() {
+//         /*
+//         Authentication error. Sign in again
+//         */
+
+//         assert.notEqual(accountbar.$.signin_dialog.querySelector('.error_message').textContent, '');
+//       });
+    
+
+//       test('When you sign in, but authentication fails, the dialog should not close', function(done){
+//         // TODO: Start here
+//         assert.equal(getComputedStyle(accountbar.$.signin_dialog).display, 'block');
+//         done();
+//       });
+
     });
 
     suite('Signed-in state', function(){
@@ -469,13 +545,16 @@
           // Verify that you can change your username
           dialog.querySelector('[label="New Username"]').value = new_username;
           dialog.querySelector('[label="Current Password"]').value = password;
-          // Submit form
-          dialog.querySelector('#changeusername_dialog_button').fire('tap');
-          hoodie.account.on('changeusername', function(){
-            // Verify the username has changed
-            assert.equal(hoodie.account.username, new_username);
-            destroy_test_user_account(hoodie, flush).then(done);
-            done();
+          // Allow paper-inputs to register their new values
+          flush(function(){
+            // Submit form
+            dialog.querySelector('#changeusername_dialog_button').fire('tap');
+            hoodie.account.on('changeusername', function(){
+              // Verify the username has changed
+              assert.equal(hoodie.account.username, new_username);
+              destroy_test_user_account(hoodie, flush).then(done);
+              done();
+            });
           });
         });
       });
@@ -567,126 +646,6 @@
         });
       });
     
-    });
-
-    suite('State: Sign in with wrong credentials', function(){
-
-      setup('Before each test, create test user account and sign out', function(done){
-        accountbar = fixture('integration');
-        hoodie = accountbar.hoodie;
-        create_test_user_account(hoodie).then(function(){
-          // Signout in case a user is signed in
-          return hoodie.account.signOut()
-          .done(function(){
-            return done();
-          });
-        });
-      });
-
-      teardown('After each test, destroy test user account and delete localstorage record', function(done){
-        accountbar = fixture('integration');
-        hoodie = accountbar.hoodie;
-        destroy_test_user_account(hoodie, flush).then(done);
-      });
-
-      test('should reopen the dialog, and should display an authentication error (and prompt the user to sign in again)', function(done) {
-        /*
-        Authentication error. Sign in again
-        */
-
-        // Sign in with wrong credentials
-        // Tap button to open dialog
-        var button = accountbar.$.signin_button;
-        button.fire('tap');
-        var dialog = accountbar.$.signin_dialog;
-        dialog.addEventListener('iron-overlay-opened', function dialog_opened_handler(event){
-          dialog.removeEventListener(event.type, dialog_opened_handler);
-          dialog.querySelector('[label=Username]').value = wrong_username;
-          dialog.querySelector('[label=Password]').value = wrong_password;
-          // Allow paper inputs time to register their new values
-          flush(function(){
-            // Submit form
-            dialog.querySelector('#signin_dialog_button').fire('tap');
-            accountbar.addEventListener('authentication-failed', function authentication_failed(event){
-              accountbar.removeEventListener(event.type, authentication_failed);
-              flush(function(){
-                if (!accountbar.$.signin_dialog.opened){
-                  // Wait for dialog to open
-                  accountbar.$.signin_dialog.addEventListener('iron-overlay-opened', function dialog_opened_handler2(event){
-                    accountbar.$.signin_dialog.removeEventListener(event.type, dialog_opened_handler2);
-                    // It should reopen the dialog
-                    assert.equal(getComputedStyle(accountbar.$.signin_dialog).display, 'block');
-                    // It should display an authentication error
-                    assert.equal(accountbar.$.signin_dialog.querySelector('.error_message').textContent,
-                      'Authentication failed.  Please sign in again.');
-                    done();
-                  });
-                }else{
-                  // It should reopen the dialog
-                  assert.equal(getComputedStyle(accountbar.$.signin_dialog).display, 'block');
-                  // TODO: Start here.  It does not yet reopen the dialog when I test it manually.
-                  //  Strangely, this test passes when run alone, but fails when it's run with all suites.
-                  //debugger;
-                  // It should display an authentication error
-                  assert.equal(accountbar.$.signin_dialog.querySelector('.error_message').textContent, 'Authentication failed.  Please sign in again.');
-                  done();
-                }
-              });
-            });
-          });
-        });
-      });
-
-    });
-
-    suite('State: Sign up with existing credentials', function(){
-
-      setup('Before each test, create test user account and sign out', function(done){
-        accountbar = fixture('integration');
-        hoodie = accountbar.hoodie;
-        create_test_user_account(hoodie).then(function(){
-          // Signout in case a user is signed in
-          return hoodie.account.signOut()
-          .done(function(){
-            return done();
-          });
-        });
-      });
-
-      teardown('After each test, destroy test user account and delete localstorage record', function(done){
-        accountbar = fixture('integration');
-        hoodie = accountbar.hoodie;
-        destroy_test_user_account(hoodie, flush).then(done);
-      });
-
-      test('test', function(){});
-//       setup('Before each test, sign out, then sign in with wrong credentials', function(done){
-//         accountbar = fixture('integration');
-//         hoodie = accountbar.hoodie;
-//         var wrong_username = 'test-wrong';
-//         var wrong_password = 'pw-wrong';
-//         // Signout in case a user is signed in
-//         hoodie.account.signOut()
-//         .done(hoodie.account.signIn(wrong_username, wrong_password))
-//         // Wait for UI to update
-//         .done(flush(done));
-//       });
-
-//       test('should display an authentication error and prompt you to sign in again', function() {
-//         /*
-//         Authentication error. Sign in again
-//         */
-
-//         assert.notEqual(accountbar.$.signin_dialog.querySelector('.error_message').textContent, '');
-//       });
-    
-
-//       test('When you sign in, but authentication fails, the dialog should not close', function(done){
-//         // TODO: Start here
-//         assert.equal(getComputedStyle(accountbar.$.signin_dialog).display, 'block');
-//         done();
-//       });
-
     });
 
     </script>

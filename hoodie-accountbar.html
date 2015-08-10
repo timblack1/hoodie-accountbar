@@ -446,8 +446,14 @@ Example:
       this.error_message = 'Authentication failed.  Please sign in again.';
       this.error_details = 'Error: ' + error.status + ' - ' + error.name + '. Reason: ' + error.message;
       this.close_all_dialogs();
-      this.$.signin_dialog.open();
-      this.fire('authentication-failed');
+      var thiz = this;
+      flush(function(){
+        debugger;
+        // TODO: Start here.  Test whether .open() works, and trace into 
+        //  listener for the event fired below.
+        thiz.$.signin_dialog.open();
+        thiz.fire('authentication-failed');
+      });
     },
 
     /**
