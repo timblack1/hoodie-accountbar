@@ -282,6 +282,15 @@ Example:
         'signedin_bar',
         'signin_again_bar'
       ];
+      // Declare the names of the available dialogs
+      this.dialogs = [
+        'signup_dialog', 
+        'signin_dialog', 
+        'forgotpassword_dialog', 
+        'changeusername_dialog', 
+        'changepassword_dialog', 
+        'data_destruction_dialog'
+      ];
       // Set the default bar to show until we find out we need another
       this.show_only_these_elements('signup_bar');
 
@@ -414,9 +423,14 @@ Example:
             .done(this._account_action_done.bind(this)).fail(this._account_action_fail.bind(this));
           break;
         case 'signup_dialog_button':
-          // TODO: Test that password === password_confirmation #19
-          this.hoodie.account.signUp(this.username, this.password)
-            .done(this._account_action_done.bind(this)).fail(this._account_action_fail.bind(this));
+          // Test that password === password_confirmation #19
+          if (this.password === this.password_confirmation){
+            this.hoodie.account.signUp(this.username, this.password)
+              .done(this._account_action_done.bind(this)).fail(this._account_action_fail.bind(this));
+          }else{
+            // Report to user that they need to enter their password correctly
+            this.error_message = "Your passwords do not match."
+          }
           break;
         case 'changepassword_dialog_button':
           this.hoodie.account.changePassword(this.current_password, this.new_password)
@@ -436,24 +450,18 @@ Example:
           break;
       }
     },
+    // This method is called after an account action in _handleSubmit is done
     _account_action_done:function(){
       this.error_message = '';
       this.error_details = '';
       this.close_all_dialogs();
       this.show_only_these_elements('signedin_bar');
     },
+    // This method is called after an account action in _handleSubmit fails
     _account_action_fail:function(error){
       this.error_message = 'Authentication failed.  Please sign in again.';
       this.error_details = 'Error: ' + error.status + ' - ' + error.name + '. Reason: ' + error.message;
-      this.close_all_dialogs();
-      var thiz = this;
-      flush(function(){
-        debugger;
-        // TODO: Start here.  Test whether .open() works, and trace into 
-        //  listener for the event fired below.
-        thiz.$.signin_dialog.open();
-        thiz.fire('authentication-failed');
-      });
+      this.fire('authentication-failed');
     },
 
     /**
@@ -505,10 +513,10 @@ Example:
      * This is useful to easily prevent more than one dialog from displaying at one time.
      */
     close_all_dialogs:function(){
-      var dialogs = ['signup_dialog', 'signin_dialog', 'forgotpassword_dialog', 'changeusername_dialog', 'changepassword_dialog', 'data_destruction_dialog'];
-      for (var i=0; i<dialogs.length; i++){
-        Polymer.dom(this.$[dialogs[i]]).setAttribute('hidden', 'hidden');
-      }
+      var thiz = this;
+      this.dialogs.forEach(function(dialog_name){
+        thiz.$[dialog_name].close();
+      });
     }
 
   });
