@@ -9,6 +9,22 @@ but not all of it is working correctly yet, as is described in the open issues o
 
 Online docs & demo are at http://timblack1.github.io/hoodie-accountbar/.
 
+# Installation
+
+bower install --save hoodie-accountbar
+
+# Usage
+
+Import hoodie-accountbar into the `<head>` of your Polymer element or `elements.html` file:
+
+    <head>
+      <link rel="import" href="../../hoodie-accountbar/hoodie-accountbar.html">
+    </head>
+
+Place the element where you would like it to appear in the context of your app:
+
+    <hoodie-accountbar></hoodie-accountbar>
+
 # Development
 
 Run the following commands to set up a development environment to improve hoodie-accountbar:
