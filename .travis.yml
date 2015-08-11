@@ -1,12 +1,12 @@
 sudo: false
 language: node_js
+services:
+  - couchdb
 cache:
   directories:
     - node_modules
 notifications:
   email: false
-services:
-  - couchdb
 node_js:
   - iojs
   - "0.12"
