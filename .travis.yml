@@ -5,6 +5,8 @@ cache:
     - node_modules
 notifications:
   email: false
+services:
+  - couchdb
 node_js:
   - iojs
   - "0.12"
@@ -17,6 +19,7 @@ before_install:
   - sh -e /etc/init.d/xvfb start
 before_script:
   - npm prune
+  - hoodie start
 script: "wct"
 after_success:
   - npm run semantic-release
