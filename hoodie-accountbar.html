@@ -415,7 +415,8 @@ Example:
       // Get the id of the button that was clicked
       // Note: Using Polymer.dom() throws an error in some tests.
       // var mode = Polymer.dom(event.target).parentNode.host.id;
-      var mode = event.target.id;
+      // var mode = event.target.id;
+      var mode = Polymer.dom(event).localTarget.id;
       
       switch(mode) {
         case 'signin_dialog_button':
