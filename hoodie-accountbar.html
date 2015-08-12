@@ -334,7 +334,7 @@ Example:
       var thiz = this;
       this.hoodie.account.signOut()
         .done(function(){
-          thiz.show_only_these_elements('signup_bar');
+          thiz.show_only_these_elements('signin_bar');
           thiz.username = '';    
           console.log('Signed out. Username is now: ' + thiz.hoodie.account.username);
         })
