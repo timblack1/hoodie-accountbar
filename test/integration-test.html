@@ -191,11 +191,14 @@
             dialog.querySelector('#signup_dialog_button').fire('tap');
         
             flush(function(){
-              // Verify the dialog remains open
-              assert.equal(getComputedStyle(accountbar.$.signup_dialog).display, 'block');
-              // Verify error message appears
-              assert.include(accountbar.error_message, 'passwords do not match');
-              done();
+              accountbar.addEventListener(event.type, function authentication_failed_handler(event){
+                dialog.removeEventListener(event.type, authentication_failed_handler);
+                // Verify the dialog remains open
+                assert.equal(getComputedStyle(accountbar.$.signup_dialog).display, 'block');
+                // Verify error message appears
+                assert.include(accountbar.error_message, 'passwords do not match');
+                done();
+              });
             });
           });
         });
