@@ -431,6 +431,7 @@ Example:
           }else{
             // Report to user that they need to enter their password correctly
             this.error_message = "Your passwords do not match."
+            this.fire('passwords-dont-match');
           }
           break;
         case 'changepassword_dialog_button':

@@ -184,22 +184,23 @@
           dialog.querySelector('[label=Username]').value = username;
           dialog.querySelector('[label=Password]').value = password;
           dialog.querySelector('[label="Confirm password"]').value = wrong_password;
+          
           // Flush events to permit paper-inputs to register their new values
           flush(function(){
         
+            // Register event listener
+            accountbar.addEventListener('passwords-dont-match', function passwords_dont_match_handler(event){
+              dialog.removeEventListener(event.type, passwords_dont_match_handler);
+              // Verify the dialog remains open
+              assert.equal(getComputedStyle(accountbar.$.signup_dialog).display, 'block');
+              // Verify error message appears
+              assert.include(accountbar.error_message, 'passwords do not match');
+              done();
+            });
+
             // Sign up
             dialog.querySelector('#signup_dialog_button').fire('tap');
-        
-            flush(function(){
-              accountbar.addEventListener(event.type, function authentication_failed_handler(event){
-                dialog.removeEventListener(event.type, authentication_failed_handler);
-                // Verify the dialog remains open
-                assert.equal(getComputedStyle(accountbar.$.signup_dialog).display, 'block');
-                // Verify error message appears
-                assert.include(accountbar.error_message, 'passwords do not match');
-                done();
-              });
-            });
+
           });
         });
 
