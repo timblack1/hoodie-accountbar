@@ -39,10 +39,10 @@ Use Hoodie in your code:
         this.async(function(){
           this.hoodie = document.querySelector('hoodie-accountbar').hoodie;
           var thiz = this;
-          // Get selected_cgroups from a user preference
-          this.hoodie.store.find('preferences', 'selected-cgroups')
-          .then(function(selected_cgroups){
-            thiz.selected_cgroups = selected_cgroups.cgroups;
+          // Get selected_colors from a user preference
+          this.hoodie.store.find('preferences', 'selected-colors')
+          .then(function(selected_colors){
+            thiz.selected_colors = selected_colors.colors;
           });
         });
       }
