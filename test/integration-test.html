@@ -567,8 +567,10 @@
               .then(function(){
                 return hoodie.account.signIn(username, new_password);
               })
-              .done(function(){
-                destroy_test_user_account(hoodie, flush).then(done);
+              .then(function(){
+                return destroy_test_user_account(hoodie, flush);
+              })
+              .then(function(){
                 return done();
               })
               // Let the test time out if something above failed.
