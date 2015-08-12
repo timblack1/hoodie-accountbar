@@ -29,6 +29,28 @@ Place the element where you would like it to appear in the context of your app:
     <hoodie-accountbar></hoodie-accountbar>
 ```
 
+Use Hoodie in your code:
+
+```html
+  <script>
+  (function() {
+    Polymer({
+      attached:function(){
+        this.async(function(){
+          this.hoodie = document.querySelector('hoodie-accountbar').hoodie;
+          var thiz = this;
+          // Get selected_cgroups from a user preference
+          this.hoodie.store.find('preferences', 'selected-cgroups')
+          .then(function(selected_cgroups){
+            thiz.selected_cgroups = selected_cgroups.cgroups;
+          });
+        });
+      }
+    });
+  });
+  </script>
+```
+
 # Development
 
 Run the following commands to set up a development environment to improve hoodie-accountbar:
