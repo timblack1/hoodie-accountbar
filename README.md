@@ -32,23 +32,23 @@ Place the element where you would like it to appear in the context of your app:
 Use Hoodie in your code:
 
 ```html
-  <script>
-  (function() {
-    Polymer({
-      attached:function(){
-        this.async(function(){
-          this.hoodie = document.querySelector('hoodie-accountbar').hoodie;
-          var thiz = this;
-          // Get selected_colors from a user preference
-          this.hoodie.store.find('preferences', 'selected-colors')
-          .then(function(selected_colors){
-            thiz.selected_colors = selected_colors.colors;
+    <script>
+    (function() {
+      Polymer({
+        attached:function(){
+          this.async(function(){
+            this.hoodie = document.querySelector('hoodie-accountbar').hoodie;
+            var thiz = this;
+            // Get selected_colors from a user preference
+            this.hoodie.store.find('preferences', 'selected-colors')
+            .then(function(selected_colors){
+              thiz.selected_colors = selected_colors.colors;
+            });
           });
-        });
-      }
+        }
+      });
     });
-  });
-  </script>
+    </script>
 ```
 
 # Development
