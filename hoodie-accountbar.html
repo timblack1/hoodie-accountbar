@@ -424,7 +424,7 @@ Example:
             .done(this._account_action_done.bind(this)).fail(this._account_action_fail.bind(this));
           break;
         case 'signup_dialog_button':
-          // Test that password === password_confirmation #19
+          // Test that password === password_confirmation
           if (this.password === this.password_confirmation){
             this.hoodie.account.signUp(this.username, this.password)
               .done(this._account_action_done.bind(this)).fail(this._account_action_fail.bind(this));
@@ -463,6 +463,12 @@ Example:
     _account_action_fail:function(error){
       this.error_message = 'Authentication failed.  Please sign in again.';
       this.error_details = 'Error: ' + error.status + ' - ' + error.name + '. Reason: ' + error.message;
+      // Reopen dialog after it closes
+      var thiz = this;
+      this.$.signin_dialog.addEventListener('iron-overlay-closed', function reopen_dialog(event){
+        thiz.$.signin_dialog.removeEventListener(event.type, reopen_dialog);
+        thiz.$.signin_dialog.open();
+      });
       this.fire('authentication-failed');
     },
 
