@@ -104,7 +104,7 @@ gulp.task('serve', ['hoodie_start'], function () {
   gulp.watch(['hoodie-accountbar.html', 'test/integration-test.html'], ['jshint']);
 });
 
-// Build Production Files, the Default Task
+// Serve docs & demo, the default task
 gulp.task('default', function (cb) {
   runSequence(
     ['serve'],
@@ -117,3 +117,11 @@ try { require('web-component-tester').gulp.init(gulp); } catch (err) {}
 
 // Load custom tasks from the `tasks` directory
 try { require('require-dir')('tasks'); } catch (err) {}
+
+// Wrap gulp test:local so it can run the 'serve' task first
+// TODO: Figure out how to get this working as the main task to call to run the tests on Travis CI.
+gulp.task('test_wrapper', ['serve'], function(){
+  runSequence(
+    ['test:local']
+  );
+});
