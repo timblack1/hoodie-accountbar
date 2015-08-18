@@ -430,7 +430,7 @@ Example:
               .done(this._account_action_done.bind(this)).fail(this._account_action_fail.bind(this));
           }else{
             // Report to user that they need to enter their password correctly
-            this.error_message = "Your passwords do not match."
+            this.error_message = 'Your passwords do not match.';
             this.fire('passwords-dont-match');
           }
           break;

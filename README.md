@@ -63,5 +63,13 @@ to see the component's docs and demo.
 
 # Integration tests
 
-You can run the integration tests by navigating to
-[http://localhost:3000/components/hoodie-accountbar/test](http://localhost:3000/components/hoodie-accountbar/).
+You can run the integration tests by running `gulp serve` and navigating to
+[http://localhost:3000/components/hoodie-accountbar/test](http://localhost:3000/components/hoodie-accountbar/),
+or by running `npm test`.
+
+# Known issues
+
+The integration test to test changing a username times out, so is commented out.
+
+The integration test to reset a password is commented out because we don't have a way for 
+the test to receive the new password by email.
