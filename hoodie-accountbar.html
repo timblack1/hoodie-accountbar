@@ -27,6 +27,20 @@ Example:
   :root {
     --paper-dialog-background-color: #fff;
   }
+  .main-button-wrapper {
+    display: inline-block;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    box-shadow: rgba(0, 0, 0, 0.137255) 0px 2px 2px 0px, rgba(0, 0, 0, 0.117647) 0px 1px 5px 0px, rgba(0, 0, 0, 0.2) 0px 3px 1px -2px;
+  }
+  paper-icon-button {
+    position: relative;
+    top: -2px;
+    margin-left: -23px;
+    z-index: 1;
+  }
   </style>
 
   <template>
@@ -35,8 +49,8 @@ Example:
 
     <!-- Account bar button and menu for each main authentication mode -->
 
-    <div id="signup_bar" hidden="{{signup_bar_hide}}">
-      <paper-button id="signup_button" on-tap="signup" raised>
+    <div id="signup_bar" class="main-button-wrapper" hidden="{{signup_bar_hide}}">
+      <paper-button id="signup_button" on-tap="signup" >
         Sign Up
       </paper-button>
       <paper-icon-button icon="arrow-drop-down" noink on-tap="toggle_menu"></paper-icon-button>
@@ -53,9 +67,9 @@ Example:
       </paper-menu>
     </div>
 
-    <div id="signin_bar" hidden="{{signin_bar_hide}}">
+    <div id="signin_bar" class="main-button-wrapper" hidden="{{signin_bar_hide}}">
       <paper-button id="signin_button" on-tap="signin"
-        raised>
+        >
         Sign In
       </paper-button>
       <paper-icon-button icon="arrow-drop-down" noink on-tap="toggle_menu"></paper-icon-button>
@@ -74,7 +88,7 @@ Example:
     <div id="signedin_bar" hidden="{{signedin_bar_hide}}">
       Welcome, <span id="username_span">{{username}}</span>
       <paper-button id="signout_button" on-tap="signout"
-        raised>
+        >
         Sign Out
       </paper-button>
       <paper-icon-button icon="arrow-drop-down" noink on-tap="toggle_menu"></paper-icon-button>
@@ -93,7 +107,7 @@ Example:
 
     <div id="signin_again_bar" hidden="{{signin_again_bar_hide}}">
       <paper-button id="autherror_button" on-tap="signin"
-        raised>
+        >
          Authentication error. Sign in again
       </paper-button>
       <paper-icon-button icon="arrow-drop-down" noink on-tap="toggle_menu"></paper-icon-button>
