@@ -68,8 +68,7 @@ Example:
     </div>
 
     <div id="signin_bar" class="main-button-wrapper" hidden="{{signin_bar_hide}}">
-      <paper-button id="signin_button" on-tap="signin"
-        >
+      <paper-button id="signin_button" on-tap="signin">
         Sign In
       </paper-button>
       <paper-icon-button icon="arrow-drop-down" noink on-tap="toggle_menu"></paper-icon-button>
@@ -87,27 +86,27 @@ Example:
 
     <div id="signedin_bar" hidden="{{signedin_bar_hide}}">
       Welcome, <span id="username_span">{{username}}</span>
-      <paper-button id="signout_button" on-tap="signout"
-        >
-        Sign Out
-      </paper-button>
-      <paper-icon-button icon="arrow-drop-down" noink on-tap="toggle_menu"></paper-icon-button>
-      <paper-menu class="menu" id="signedin_menu" hidden>
-        <paper-item
-          id="changepassword_button"
-          on-tap="changePassword">Change Password</paper-item>
-        <paper-item 
-          id="changeusername_button"
-          on-tap="changeUsername">Change Username</paper-item>
-        <paper-item 
-          id="destroy_account"
-          on-tap="destroy_account">Destroy Account</paper-item>
-      </paper-menu>
+      <div class="main-button-wrapper">
+        <paper-button id="signout_button" on-tap="signout">
+          Sign Out
+        </paper-button>
+        <paper-icon-button icon="arrow-drop-down" noink on-tap="toggle_menu"></paper-icon-button>
+        <paper-menu class="menu" id="signedin_menu" hidden>
+          <paper-item
+            id="changepassword_button"
+            on-tap="changePassword">Change Password</paper-item>
+          <paper-item 
+            id="changeusername_button"
+            on-tap="changeUsername">Change Username</paper-item>
+          <paper-item 
+            id="destroy_account"
+            on-tap="destroy_account">Destroy Account</paper-item>
+        </paper-menu>
+      </div>
     </div>
 
-    <div id="signin_again_bar" hidden="{{signin_again_bar_hide}}">
-      <paper-button id="autherror_button" on-tap="signin"
-        >
+    <div id="signin_again_bar" class="main-button-wrapper" hidden="{{signin_again_bar_hide}}">
+      <paper-button id="autherror_button" on-tap="signin">
          Authentication error. Sign in again
       </paper-button>
       <paper-icon-button icon="arrow-drop-down" noink on-tap="toggle_menu"></paper-icon-button>

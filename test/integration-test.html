@@ -275,9 +275,9 @@
 
         // Tap button to open dialog
         var button;
-        if (getComputedStyle(accountbar.$.signin_bar).display === 'block'){
+        if (getComputedStyle(accountbar.$.signin_bar).display === 'inline-block'){
           button = accountbar.$.signin_button;
-        }else if (getComputedStyle(accountbar.$.signup_bar).display === 'block'){
+        }else if (getComputedStyle(accountbar.$.signup_bar).display === 'inline-block'){
           button = accountbar.$.signin_button_submenu;
         }
         button.fire('tap');
@@ -450,7 +450,7 @@
       });
 
       test('Attempt to sign up with existing credentials.  Should reopen the dialog, and should display an ' +
-            'authentication error (and prompt the user to sign up again)', function(done){
+            'authentication error (and prompt the user to sign in again)', function(done){
 
         /*
         Authentication error. Sign up again
@@ -543,7 +543,7 @@
         button.fire('tap');
         hoodie.account.on('signout', function(){
           // Verify "Sign In" button displays
-          assert.equal(getComputedStyle(accountbar.$.signin_bar).display, 'block');
+          assert.equal(getComputedStyle(accountbar.$.signin_bar).display, 'inline-block');
           // Verify that the signedin_bar (and so its welcome message) doesn't display
           assert.equal(getComputedStyle(accountbar.$.signedin_bar).display, 'none');
           destroy_test_user_account(hoodie).then(done);
