@@ -1,0 +1,44 @@
+{
+  "name": "hoodie-accountbar",
+  "authors": [
+    "Tim Black <tim@alwaysreformed.com>"
+  ],
+  "description": "A Polymer element providing an accountbar to manage user account actions in Hoodie.",
+  "keywords": [
+    "web-component",
+    "web-components",
+    "polymer",
+    "hoodie",
+    "accountbar"
+  ],
+  "main": "hoodie-accountbar.html",
+  "license": "MIT",
+  "homepage": "https://github.com/timblack1/hoodie-accountbar/",
+  "ignore": [
+    "/.*",
+    "/test/",
+    "/demo/"
+  ],
+  "dependencies": {
+    "hoodie-service": "latest",
+    "iron-elements": "PolymerElements/iron-elements#1.0.0",
+    "neon-elements": "PolymerElements/neon-elements#1.0.0",
+    "paper-elements": "PolymerElements/paper-elements#1.0.1",
+    "polymer": "Polymer/polymer#^1.0.0"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "web-component-tester": "*",
+    "test-fixture": "PolymerElements/test-fixture#^1.0.0"
+  },
+  "_release": "947fe74a19",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "947fe74a1931cc4bec95ce96347b0a7a6c2cd19a"
+  },
+  "_source": "git://github.com/timblack1/hoodie-accountbar.git",
+  "_target": "master",
+  "_originalSource": "timblack1/hoodie-accountbar",
+  "_direct": true
+}

@@ -1,0 +1,88 @@
+{
+  "name": "hoodie-accountbar",
+  "type": "app",
+  "author": "Tim Black <tim@alwaysreformed.com> (http://alwaysreformed.com/)",
+  "license": "MIT",
+  "description": "A Polymer element providing an accountbar to manage user account actions in Hoodie.",
+  "homepage": "https://github.com/timblack1/hoodie-accountbar#readme",
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/timblack1/hoodie-accountbar.git"
+  },
+  "keywords": [
+    "web-components",
+    "web-component",
+    "polymer",
+    "hoodie",
+    "accountbar"
+  ],
+  "bugs": {
+    "url": "https://github.com/timblack1/hoodie-accountbar/issues"
+  },
+  "dependencies": {
+    "hoodie": "latest",
+    "hoodie-plugin-appconfig": "^2.0.1",
+    "hoodie-plugin-users": "^2.2.1",
+    "hoodie-server": "^3.0.0",
+    "request": "^2.0.0"
+  },
+  "devDependencies": {
+    "apache-server-configs": "^2.7.1",
+    "browser-sync": "^2.6.4",
+    "browserify": "~5.10.1",
+    "del": "^1.1.1",
+    "glob": "^5.0.6",
+    "gulp": "^3.8.5",
+    "gulp-autoprefixer": "^2.1.0",
+    "gulp-cache": "^0.2.8",
+    "gulp-changed": "^1.0.0",
+    "gulp-connect": "^2.2.0",
+    "gulp-cssmin": "^0.1.7",
+    "gulp-flatten": "0.0.4",
+    "gulp-if": "^1.2.1",
+    "gulp-imagemin": "^2.2.1",
+    "gulp-jshint": "^1.6.3",
+    "gulp-load-plugins": "^0.10.0",
+    "gulp-minify-html": "^1.0.2",
+    "gulp-rename": "^1.2.0",
+    "gulp-replace": "^0.5.3",
+    "gulp-size": "^1.0.0",
+    "gulp-uglify": "^1.2.0",
+    "gulp-uncss": "^1.0.1",
+    "gulp-useref": "^1.1.2",
+    "gulp-vulcanize": "^6.0.0",
+    "http-proxy-middleware": "0.0.5",
+    "jshint-stylish": "^2.0.0",
+    "merge-stream": "^0.1.7",
+    "opn": "^1.0.0",
+    "require-dir": "^0.3.0",
+    "run-sequence": "^1.0.2",
+    "semantic-release": "^4.0.2",
+    "url": "^0.10.3",
+    "vulcanize": ">= 1.4.2",
+    "web-component-tester": "^3.3.9"
+  },
+  "engines": {
+    "node": ">=0.12.0"
+  },
+  "files": [
+    "demo/",
+    "test/"
+  ],
+  "scripts": {
+    "test-old": "gulp run_tests",
+    "test": "node_modules/hoodie-server/bin/start --custom-ports=3002,3003,3004 & pid=$! && wct && kill $pid",
+    "start": "node node_modules/hoodie-server/bin/start",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post && gp.sh timblack1 hoodie-accountbar"
+  },
+  "hoodie": {
+    "plugins": [
+      "hoodie-plugin-appconfig",
+      "hoodie-plugin-users"
+    ],
+    "hoodiejs": "node_modules/hoodie/src/hoodie.js"
+  }
+}

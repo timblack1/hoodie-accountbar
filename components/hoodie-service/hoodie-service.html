@@ -1,0 +1,50 @@
+<link rel="import" href="../polymer/polymer.html">
+<script src="../jquery/dist/jquery.js"></script>
+<script src="hoodie.js"></script>
+
+<!--
+A Polymer element providing access to Hoodie.
+
+Hoodie's docs are available at http://hood.ie.
+
+Example:
+
+    <hoodie-service id="hoodie_service" hoodie={{hoodie}}></hoodie-service>
+
+@demo
+-->
+<dom-module id="hoodie-service">
+
+  <style>
+    :host {
+      display: none;
+    }
+  </style>
+
+  <template></template>
+  <script>
+    'use strict';
+    (function () {
+
+      Polymer({
+        is: 'hoodie-service',
+        properties: {
+          // Permits you to access hoodie's API via `document.querySelector('hoodie-service').hoodie`.
+          hoodie: {
+            type: Object,
+            value: function(){
+              var hoodie = new Hoodie();
+              return hoodie;
+            },
+            reflectToAttribute: true,
+            readOnly: true,
+            notify: true
+          }
+        },
+        ready:function(){
+        }
+      });
+
+    })();
+  </script>
+</dom-module>

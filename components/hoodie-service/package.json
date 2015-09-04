@@ -1,0 +1,32 @@
+{
+  "name": "hoodie-service",
+  "description": "A Polymer element providing access to Hoodie.",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "wct",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post && gp.sh timblack1 hoodie-service"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/timblack1/hoodie-service.git"
+  },
+  "keywords": [
+    "web-components",
+    "web-component",
+    "polymer",
+    "hoodie",
+    "service"
+  ],
+  "author": "Tim Black <tim@alwaysreformed.com> (http://alwaysreformed.com/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/timblack1/hoodie-service/issues"
+  },
+  "homepage": "https://github.com/timblack1/hoodie-service#readme",
+  "devDependencies": {
+    "semantic-release": "^4.0.2",
+    "web-component-tester": "^3.3.9"
+  }
+}
