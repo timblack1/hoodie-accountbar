@@ -27,7 +27,7 @@
     "hoodie-plugin-appconfig": "^2.0.1",
     "hoodie-plugin-users": "^2.2.1",
     "hoodie-server": "^3.0.0",
-    "request": "^2.0.0"
+    "request": "^2.64.0"
   },
   "devDependencies": {
     "apache-server-configs": "^2.7.1",
