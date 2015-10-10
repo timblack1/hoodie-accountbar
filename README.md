@@ -73,3 +73,7 @@ The integration test to test changing a username times out, so is commented out.
 
 The integration test to reset a password is commented out because we don't have a way for 
 the test to receive the new password by email.
+
+The integration test to test signing up with existing credentials is commented out
+because it appears hoodie.account.signUp() no longer throws an error in that case,
+but rather just signs in that user.
