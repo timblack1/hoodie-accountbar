@@ -56,15 +56,15 @@ Use Hoodie in your code:
 Run the following commands to set up a development environment to improve hoodie-accountbar:
 
     $ bower install && npm install
-    $ gulp serve
+    $ npm start
 
 Navigate to [http://localhost:3000/components/hoodie-accountbar/](http://localhost:3000/components/hoodie-accountbar/)
 to see the component's docs and demo.
 
 # Integration tests
 
-You can run the integration tests by running `gulp serve` and navigating to
-[http://localhost:3000/components/hoodie-accountbar/test](http://localhost:3000/components/hoodie-accountbar/),
+You can run the integration tests by running `npm start` and navigating to
+[http://localhost:3000/components/hoodie-accountbar/test](http://localhost:3000/components/hoodie-accountbar/test),
 or by running `npm test`.
 
 # Known issues
@@ -73,3 +73,7 @@ The integration test to test changing a username times out, so is commented out.
 
 The integration test to reset a password is commented out because we don't have a way for 
 the test to receive the new password by email.
+
+The integration test to test signing up with existing credentials is commented out
+because it appears hoodie.account.signUp() no longer throws an error in that case,
+but rather just signs in that user.
