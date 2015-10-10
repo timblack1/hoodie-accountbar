@@ -64,7 +64,7 @@ to see the component's docs and demo.
 # Integration tests
 
 You can run the integration tests by running `gulp serve` and navigating to
-[http://localhost:3000/components/hoodie-accountbar/test](http://localhost:3000/components/hoodie-accountbar/),
+[http://localhost:3000/components/hoodie-accountbar/test](http://localhost:3000/components/hoodie-accountbar/test),
 or by running `npm test`.
 
 # Known issues
