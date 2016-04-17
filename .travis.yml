@@ -1,5 +1,10 @@
 language: node_js
-sudo: false
+sudo: required
+notifications:
+  email: false
+cache:
+  directories:
+    - node_modules
 before_script:
   - npm install -g bower polylint web-component-tester
   - bower install
@@ -14,29 +19,15 @@ addons:
   firefox: latest
   apt:
     sources:
-      - google-chrome
+#      - google-chrome
       - ubuntu-toolchain-r-test
     packages:
-      - google-chrome-stable
+#      - google-chrome-stable
       - g++-4.8
-  sauce_connect: true
 script:
   - xvfb-run wct
-  - "if [ \"${TRAVIS_PULL_REQUEST}\" = \"false\" ]; then wct -s 'default'; fi"
   - "npm test"
-before_install:
-  - npm i -g npm@^2.0.0
-  - npm install -g bower
-  - bower install
-  - npm install -g web-component-tester
-  - export DISPLAY=:99.0
-  - sh -e /etc/init.d/xvfb start
 after_success:
   - npm run semantic-release
 services:
   - couchdb
-cache:
-  directories:
-    - node_modules
-notifications:
-  email: false

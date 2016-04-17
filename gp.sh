@@ -14,13 +14,18 @@
 
 # usage gp Polymer core-item [branch]
 # Run in a clean directory passing in a GitHub org and repo name
-org=$1
-repo=$2
-branch=${3:-"master"} # default to master when branch isn't specified
+hostname=$1
+org=$2
+repo=$3
+branch=${4:-"master"} # default to master when branch isn't specified
+connectionType=${5:-"https"} # defaults to https if type is set to null
+
+# Calculate git clone url
+[ "$connectionType" = "https" ] && { url=https://$hostname/$org/$repo.git; true; } || url=git@$hostname:$org/$repo.git;
 
 # make folder (same as input, no checking!)
 mkdir $repo
-git clone git@github.com:$org/$repo.git --single-branch
+git clone $url --single-branch
 
 # switch to gh-pages branch
 pushd $repo >/dev/null
@@ -37,17 +42,28 @@ echo "{
 }
 " > .bowerrc
 bower install
-bower install $org/$repo#$branch
+[ "$connectionType" = "https" ] && { bowerUrl=https://$hostname/$org/$repo.git#$branch; true; } || bowerUrl=git@$hostname:$org/$repo#$branch;
+bower install $bowerUrl
 git checkout ${branch} -- demo
+rm bower.json .bowerrc
 rm -rf components/$repo/demo
 mv demo components/$repo/
 
 # redirect by default to the component folder
 echo "<META http-equiv="refresh" content=\"0;URL=components/$repo/\">" >index.html
 
+# install the project's dev dependencies
+if [ "$getdevdeps" = "yes" ]
+then
+  cd components/$repo
+  bower install --config.directory="../"
+  cd ../../
+fi
+
 # send it all to github
 git add -A .
 git commit -am 'seed gh-pages'
 git push -u origin gh-pages --force
+git checkout $branch
 
 popd >/dev/null

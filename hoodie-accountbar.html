@@ -27,7 +27,7 @@ A Polymer element providing an accountbar to manage user account actions in Hood
 
 Example:
 
-    <hoodie-accountbar></hoodie-accountbar>
+    <hoodie-accountbar hoodie="{{hoodie}}"></hoodie-accountbar>
 
 @demo demo/index.html
 -->
@@ -36,26 +36,26 @@ Example:
   <template>
 
     <style>
-    :root {
-      --paper-dialog-background-color: #fff;
-    }
-    .main-button-wrapper {
-      display: inline-block;
-      border-bottom-left-radius: 3px;
-      border-bottom-right-radius: 3px;
-      border-top-left-radius: 3px;
-      border-top-right-radius: 3px;
-      box-shadow: rgba(0, 0, 0, 0.137255) 0px 2px 2px 0px, rgba(0, 0, 0, 0.117647) 0px 1px 5px 0px, rgba(0, 0, 0, 0.2) 0px 3px 1px -2px;
-  }
-    paper-icon-button {
-      position: relative;
-      top: -2px;
-      margin-left: -23px;
-      z-index: 1;
-    }
-    #username_span {
-      margin-right: 0.3em;
-    }
+      :root {
+        --paper-dialog-background-color: #fff;
+      }
+      .main-button-wrapper {
+        display: inline-block;
+        border-bottom-left-radius: 3px;
+        border-bottom-right-radius: 3px;
+        border-top-left-radius: 3px;
+        border-top-right-radius: 3px;
+        box-shadow: rgba(0, 0, 0, 0.137255) 0px 2px 2px 0px, rgba(0, 0, 0, 0.117647) 0px 1px 5px 0px, rgba(0, 0, 0, 0.2) 0px 3px 1px -2px;
+      }
+      paper-icon-button {
+        position: relative;
+        top: -2px;
+        margin-left: -23px;
+        z-index: 1;
+      }
+      #username_span {
+        margin-right: 0.3em;
+      }
     </style>
 
     <hoodie-service id="hoodie_service" hoodie={{hoodie}}></hoodie-service>

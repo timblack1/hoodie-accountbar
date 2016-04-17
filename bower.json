@@ -7,7 +7,6 @@
   "description": "A Polymer element providing an accountbar to manage user account actions in Hoodie.",
   "keywords": [
     "web-component",
-    "web-components",
     "polymer",
     "hoodie",
     "accountbar"
