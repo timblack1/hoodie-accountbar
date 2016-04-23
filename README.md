@@ -63,7 +63,7 @@ to see the component's docs and demo.
 
 # Integration tests
 
-You can run the integration tests in one of two ways:
+You can run the integration tests in one of two ways: 
 
 1. From the command line:  Run `npm test`.
 
