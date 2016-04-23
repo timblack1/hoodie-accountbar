@@ -2,7 +2,7 @@
   "name": "hoodie-accountbar",
   "type": "app",
   "author": "Tim Black <tim@alwaysreformed.com> (http://alwaysreformed.com/)",
-  "license": "MIT",
+  "license": "BSD-3-Clause-Clear",
   "description": "A Polymer element providing an accountbar to manage user account actions in Hoodie.",
   "homepage": "https://github.com/timblack1/hoodie-accountbar#readme",
   "directories": {
