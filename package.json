@@ -9,10 +9,8 @@
     "test": "test"
   },
   "scripts": {
-    "test-old": "gulp run_tests",
-    "test": "node_modules/hoodie-server/bin/start --custom-ports=3002,3003,3004 & pid=$! && wct && kill $pid",
-    "start": "gulp serve",
-    "start-old": "node node_modules/hoodie-server/bin/start",
+    "test": "wct",
+    "start": "polyserve",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post && gp.sh timblack1 hoodie-accountbar"
   },
   "repository": {
@@ -28,9 +26,6 @@
   ],
   "bugs": {
     "url": "https://github.com/timblack1/hoodie-accountbar/issues"
-  },
-  "dependencies": {
-    "hoodie": "git://github.com/hoodiehq/hoodie#tent"
   },
   "devDependencies": {
     "apache-server-configs": "^2.7.1",

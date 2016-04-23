@@ -31,7 +31,7 @@ Example:
 
 @demo demo/index.html
 -->
-<dom-module id="hoodie-accountbar" hoodie={{hoodie}}>
+<dom-module id="hoodie-accountbar" hoodie={{hoodie}} mode="{{mode}}">
 
   <template>
 
@@ -58,11 +58,11 @@ Example:
       }
     </style>
 
-    <hoodie-service id="hoodie_service" hoodie={{hoodie}}></hoodie-service>
+    <hoodie-service id="hoodie_service" hoodie={{hoodie}} mode="{{mode}}"></hoodie-service>
 
     <!-- Account bar button and menu for each main authentication mode -->
 
-    <div id="signup_bar" class="main-button-wrapper" hidden="{{signup_bar_hide}}">
+    <div id="signup_bar" class="main-button-wrapper" hidden$="{{signup_bar_hide}}">
       <paper-button id="signup_button" on-tap="signup" >
         Sign Up
       </paper-button>
@@ -80,7 +80,7 @@ Example:
       </paper-menu>
     </div>
 
-    <div id="signin_bar" class="main-button-wrapper" hidden="{{signin_bar_hide}}">
+    <div id="signin_bar" class="main-button-wrapper" hidden$="{{signin_bar_hide}}">
       <paper-button id="signin_button" on-tap="signin">
         Sign In
       </paper-button>
@@ -97,7 +97,7 @@ Example:
       </paper-menu>
     </div>
 
-    <div id="signedin_bar" hidden="{{signedin_bar_hide}}">
+    <div id="signedin_bar" hidden$="{{signedin_bar_hide}}">
       Welcome, <span id="username_span">{{username}}</span>
       <div class="main-button-wrapper">
         <paper-button id="signout_button" on-tap="signout">
@@ -118,7 +118,7 @@ Example:
       </div>
     </div>
 
-    <div id="signin_again_bar" class="main-button-wrapper" hidden="{{signin_again_bar_hide}}">
+    <div id="signin_again_bar" class="main-button-wrapper" hidden$="{{signin_again_bar_hide}}">
       <paper-button id="autherror_button" on-tap="signin">
          Authentication error. Sign in again
       </paper-button>
@@ -290,6 +290,37 @@ Example:
     Polymer({
       is: 'hoodie-accountbar',
       properties:{
+        mode: {
+          type: String,
+          // Set to 'test' to stub Hoodie for unit tests
+          value: 'normal',
+          notify: true
+        },
+        hoodie: {
+          type: Object,
+          notify: true
+        },
+        data_destruction_button_text: {
+          type: String
+        },
+        destroy_data_question: {
+          type: String
+        },
+        error_message: {
+          type: String
+        },
+        error_details: {
+          type: String
+        },
+        password_confirmation: {
+          type: String
+        },
+        new_username: {
+          type: String
+        },
+        new_password: {
+          type: String
+        }
       },
       // define element prototype here
       // TODO: Reply to https://twitter.com/addyosmani/status/452848531125313536
@@ -450,8 +481,9 @@ Example:
           case 'signup_dialog_button':
             // Test that password === password_confirmation
             if (this.password === this.password_confirmation){
-              this.hoodie.account.signUp(this.username, this.password)
-                .done(this._account_action_done.bind(this)).fail(this._account_action_fail.bind(this));
+              var result = this.hoodie.account.signUp(this.username, this.password)
+              .done(this._account_action_done.bind(this))
+              .fail(this._account_action_fail.bind(this));
             }else{
               // Report to user that they need to enter their password correctly
               this.error_message = 'Your passwords do not match.';

@@ -55,7 +55,7 @@ Use Hoodie in your code:
 
 Run the following commands to set up a development environment to improve hoodie-accountbar:
 
-    $ bower install && npm install
+    $ npm install -g polyserve && npm install && bower install
     $ npm start
 
 Navigate to [http://localhost:3000/components/hoodie-accountbar/](http://localhost:3000/components/hoodie-accountbar/)
@@ -63,17 +63,9 @@ to see the component's docs and demo.
 
 # Integration tests
 
-You can run the integration tests by running `npm start` and navigating to
-[http://localhost:3000/components/hoodie-accountbar/test](http://localhost:3000/components/hoodie-accountbar/test),
-or by running `npm test`.
+You can run the integration tests in one of two ways:
 
-# Known issues
+1. From the command line:  Run `npm test`.
 
-The integration test to test changing a username times out, so is commented out.
-
-The integration test to reset a password is commented out because we don't have a way for 
-the test to receive the new password by email.
-
-The integration test to test signing up with existing credentials is commented out
-because it appears hoodie.account.signUp() no longer throws an error in that case,
-but rather just signs in that user.
+2. In your browser:  Run `npm start` and navigate to
+[http://localhost:8080/components/hoodie-accountbar/test/index.html](http://localhost:8080/components/hoodie-accountbar/test/index.html).

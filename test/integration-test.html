@@ -29,15 +29,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <test-fixture id="integration">
       <template>
-        <hoodie-accountbar></hoodie-accountbar>
+        <hoodie-accountbar mode="test"></hoodie-accountbar>
       </template>
     </test-fixture>
 
     <script>
     'use strict';
       
-    // Note:  These are integration tests, since this element integrates Hoodie and Polymer.
-
     // Main purpose:  Test each mode's effects on authentication, data, UI
 
     // Silence jshint
@@ -160,12 +158,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           // Flush events to permit paper-inputs to register their new values
           flush(function(){
         
-            // Sign up
-            dialog.querySelector('#signup_dialog_button').fire('tap');
-        
-            // Verify the username is displayed
-            assert.equal(accountbar.$.username_span.textContent, username);
-            hoodie.account.on('signup', function signin_handler(){
+            hoodie.account.on('signup', function signup_handler(){
               flush(function(){
                 // Verify the "Sign Out" button is displayed
                 assert.equal(getComputedStyle(accountbar.$.signout_button).display, 'inline-block');
@@ -173,6 +166,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 done();
               });
             });
+
+            // Sign up
+            dialog.querySelector('#signup_dialog_button').fire('tap');
+        
+            // Verify the username is displayed
+            assert.equal(accountbar.$.username_span.textContent, username);
+          
           });
         });
 
@@ -306,10 +306,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           dialog.querySelector('[label=Password]').value = password;
           // Flush events to permit paper-inputs to register their new values
           flush(function(){
-            // Sign in
-            dialog.querySelector('#signin_dialog_button').fire('tap');
-            // Verify the username is displayed
-            assert.equal(accountbar.$.username_span.textContent, username);
+
             // Verify the signout button is displayed
             hoodie.account.on('signin', function signin_handler(){
               flush(function(){
@@ -319,6 +316,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 done();
               });
             });
+
+            // Sign in
+            dialog.querySelector('#signin_dialog_button').fire('tap');
+            // Verify the username is displayed
+            assert.equal(accountbar.$.username_span.textContent, username);
+
           });
         });
 
@@ -347,48 +350,43 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         destroy_test_user_account(hoodie).then(done);
       });
 
-      /**
-       * TODO: I don't know how to get the new password out of my email here to know whether the integration worked.
-       *    It would be fine to just test for the 'passwordreset' event, but then we don't know the user's new password,
-       *    so this test is disabled for now.  Maybe someday we can write a way to delete the test user from the
-       *    database after this test is done. #18
-       */
-//       test('should allow you to get a new password', function() {
-//         /*
-//         Forgot Password
-//           Dialog displays
-//           Dialog contains
-//             Username
-//             "Email Me A New Password" button
-//           Password changed
-//         */
+      test('should allow you to get a new password', function() {
+        /*
+        Forgot Password
+          Dialog displays
+          Dialog contains
+            Username
+            "Email Me A New Password" button
+          Password changed
+        */
         
-//         // Tap button to open dialog
-//         var button = accountbar.$.forgot_password_button;
-//         button.fire('tap');
-//         var dialog = accountbar.$.forgot_password_dialog;
-//         dialog.addEventListener('iron-overlay-opened', function dialog_opened_handler(event){
-//           dialog.removeEventListener(event.type, dialog_opened_handler);
-//           // Verify dialog displays & contains correct elements
-//           // Note:  Query by [label=] since the dialogs can't use IDs.
-//           assert.equal(getComputedStyle(dialog.querySelector('[label=Username]')).display, 'block');
-//           assert.equal(getComputedStyle(dialog.querySelector('#forgotpassword_dialog_button')).display, 'block');
-//           // Verify that you can sign in
-//           dialog.querySelector('[label=Username]').value = username;
-//           // Flush events to permit paper-inputs to register their new values
-//           flush(function(){
-//             // Submit form
-//             dialog.querySelector('#forgotpassword_dialog_button').fire('tap');
-//             hoodie.account.on('passwordreset', function passwordreset_handler(event){
-//               flush(function(){
-//                 // TODO: Verify the new password has been emailed
-//                 assert.equal(1,0);
-//                 done();
-//               });
-//             });
-//           });
-//         });
-//       });
+        var dialog = accountbar.$.forgotpassword_dialog;
+        dialog.addEventListener('iron-overlay-opened', function dialog_opened_handler(event){
+          dialog.removeEventListener(event.type, dialog_opened_handler);
+          // Verify dialog displays & contains correct elements
+          // Note:  Query by [label=] since the dialogs can't use IDs.
+          assert.equal(getComputedStyle(dialog.querySelector('[label=Username]')).display, 'block');
+          assert.equal(getComputedStyle(dialog.querySelector('#forgotpassword_dialog_button')).display, 'block');
+          // Verify that you can sign in
+          dialog.querySelector('[label=Username]').value = username;
+          // Flush events to permit paper-inputs to register their new values
+          flush(function(){
+
+            hoodie.account.on('passwordreset', function passwordreset_handler(event){
+              done();
+            });
+
+            // Submit form
+            dialog.querySelector('#forgotpassword_dialog_button').fire('tap');
+
+          });
+        });
+
+        // Tap button to open dialog
+        var button = accountbar.$.forgot_password_button;
+        button.fire('tap');
+
+      });
 
       test('should allow you to clear local data', function(done) {
         /*
@@ -402,18 +400,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var dialog = accountbar.$.data_destruction_dialog;
         dialog.addEventListener('iron-overlay-opened', function dialog_opened_handler(event){
           dialog.removeEventListener(event.type, dialog_opened_handler);
+
           // Verify dialog displays & contains correct elements
           assert.equal(getComputedStyle(dialog.querySelector('#destroy_data_button')).display, 'block');
+
           // Verify that you can destroy local data
-          // Submit form
-          dialog.querySelector('#destroy_data_button').fire('tap');
           accountbar.addEventListener('account_destroyed', function data_destroyed_handler(event){
             accountbar.removeEventListener(event.type, data_destroyed_handler);
+
             // Verify the local data is gone
             var hoodie_config = localStorage.getItem('_hoodie_config');
-            assert.includeMembers(['{}', null], [hoodie_config], 'hoodie_config should be an empty object or null');
+            assert.includeMembers(['{}', null], [hoodie_config], '_hoodie_config should be an empty object or null');
             done();
+
           });
+
+          // Submit form
+          dialog.querySelector('#destroy_data_button').fire('tap');
+
         });
       });
 
@@ -433,9 +437,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
         // Sign in with wrong credentials
-        // Tap button to open dialog
-        var button = accountbar.$.signin_button;
-        button.fire('tap');
+
         var dialog = accountbar.$.signin_dialog;
         dialog.addEventListener('iron-overlay-opened', function dialog_opened_handler(event){
           dialog.removeEventListener(event.type, dialog_opened_handler);
@@ -443,8 +445,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           dialog.querySelector('[label=Password]').value = wrong_password;
           // Allow paper inputs time to register their new values
           flush(function(){
-            // Submit form
-            dialog.querySelector('#signin_dialog_button').fire('tap');
+
             accountbar.addEventListener('authentication-failed', function authentication_failed(event){
               accountbar.removeEventListener(event.type, authentication_failed);
               if (getComputedStyle(accountbar.$.signin_dialog).display === 'block'){
@@ -457,62 +458,67 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 });
               }
             });
+
+            // Submit form
+            dialog.querySelector('#signin_dialog_button').fire('tap');
+
           });
         });
+
+        // Tap button to open dialog
+        var button = accountbar.$.signin_button;
+        button.fire('tap');
+
       });
 
-      /*
-       * This test began to fail around 10/9/2015, because it appears that now .signUp() simply signs
-       * in a user when an existing user's credentials are entered.  Perhaps later I'll discover my
-       * impression is not correct.  So I'm commenting out this test for now.
-       */
-//       test('Attempt to sign up with existing credentials.  Should reopen the dialog, and should display an ' +
-//             'authentication error (and prompt the user to sign in again)', function(done){
+      test('Attempt to sign up with existing credentials.  Should reopen the dialog, and should display an ' +
+            'authentication error (and prompt the user to sign in again)', function(done){
 
-//         /*
-//         Authentication error. Sign in again
-//         */
+        /*
+        Authentication error. Sign in again
+        */
 
-//         function verify_signup_reopened_and_displays_error(done){
-//           // It should reopen the dialog
-//           assert.equal(getComputedStyle(accountbar.$.signup_dialog).display, 'block');
-//           // It should display an authentication error
-//           assert.equal(accountbar.$.signup_dialog.querySelector('.error_message').textContent,
-//             'Authentication failed.  Please sign in again.');
-//           done();
-//         }
+        function verify_signup_reopened_and_displays_error(done){
+          assert.equal(getComputedStyle(accountbar.$.signup_dialog).display, 'block', 'It should reopen the dialog');
+          assert.equal(accountbar.$.signup_dialog.querySelector('.error_message').textContent,
+            'Authentication failed.  Please sign in again.', 'It should display an authentication error');
+          done();
+        }
 
-//         // Sign up with existing credentials
-//         // Tap button to open dialog
-//         var button = accountbar.$.signup_button;
-//         button.fire('tap');
-//         var dialog = accountbar.$.signup_dialog;
-//         dialog.addEventListener('iron-overlay-opened', function dialog_opened_handler(event){
-//           dialog.removeEventListener(event.type, dialog_opened_handler);
-//           dialog.querySelector('[label=Username]').value = username;
-//           dialog.querySelector('[label=Password]').value = password;
-//           dialog.querySelector('[label="Confirm password"]').value = password;
-//           // Allow paper inputs time to register their new values
-//           flush(function(){
-//             accountbar.addEventListener('authentication-failed', function authentication_failed(event){
-//               // TODO: Why isn't this being called?
-//               debugger;
-//               accountbar.removeEventListener(event.type, authentication_failed);
-//               if (getComputedStyle(accountbar.$.signup_dialog).display === 'block'){
-//                 verify_signup_reopened_and_displays_error(done);
-//               }else{
-//                 // Wait for dialog to open
-//                 accountbar.$.signup_dialog.addEventListener('iron-overlay-opened', function dialog_opened_handler2(event){
-//                   accountbar.$.signup_dialog.removeEventListener(event.type, dialog_opened_handler2);
-//                   verify_signup_reopened_and_displays_error(done);
-//                 });
-//               }
-//             });
-//             // Submit form
-//             dialog.querySelector('#signup_dialog_button').fire('tap');
-//           });
-//         });
-//       });
+        // Sign up with existing credentials
+        var dialog = accountbar.$.signup_dialog;
+        dialog.addEventListener('iron-overlay-opened', function dialog_opened_handler(event){
+          dialog.removeEventListener(event.type, dialog_opened_handler);
+          dialog.querySelector('[label=Username]').value = username;
+          dialog.querySelector('[label=Password]').value = password;
+          dialog.querySelector('[label="Confirm password"]').value = password;
+          // Allow paper inputs time to register their new values
+          flush(function(){
+
+            accountbar.addEventListener('authentication-failed', function authentication_failed(event){
+              accountbar.removeEventListener(event.type, authentication_failed);
+              if (getComputedStyle(accountbar.$.signup_dialog).display === 'block'){
+                verify_signup_reopened_and_displays_error(done);
+              }else{
+                // Wait for dialog to open
+                accountbar.$.signup_dialog.addEventListener('iron-overlay-opened', function dialog_opened_handler2(event){
+                  accountbar.$.signup_dialog.removeEventListener(event.type, dialog_opened_handler2);
+                  verify_signup_reopened_and_displays_error(done);
+                });
+              }
+            });
+
+            // Submit form
+            dialog.querySelector('#signup_dialog_button').fire('tap');
+
+          });
+        });
+
+        // Tap button to open dialog
+        var button = accountbar.$.signup_button;
+        button.fire('tap');
+
+      });
 
     });
 
@@ -531,22 +537,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         Destroy Account
         */
 
-        // Tap button to open dialog
-        var button = accountbar.$.destroy_account;
-        button.fire('tap');
         var dialog = accountbar.$.data_destruction_dialog;
         dialog.addEventListener('iron-overlay-opened', function dialog_opened_handler(event){
           dialog.removeEventListener(event.type, dialog_opened_handler);
           // Verify dialog displays & contains correct elements
           assert.equal(getComputedStyle(dialog.querySelector('#destroy_data_button')).display, 'block');
+
           // Verify that you can destroy your account
-          // Submit form
-          dialog.querySelector('#destroy_data_button').fire('tap');
           accountbar.addEventListener('account_destroyed', function signup_user(){
             accountbar.removeEventListener(event.type, signup_user);
             done();
           });
+
+          // Submit form
+          dialog.querySelector('#destroy_data_button').fire('tap');
         });
+
+        // Tap button to open dialog
+        var button = accountbar.$.destroy_account;
+        button.fire('tap');
+
       });
     
       test('should allow you to sign out', function(done) {
@@ -557,9 +567,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           Welcome message doesn't display
         */
 
-        // Tap button to open dialog
-        var button = accountbar.$.signout_button;
-        button.fire('tap');
         hoodie.account.on('signout', function(){
           // Verify "Sign In" button displays
           assert.equal(getComputedStyle(accountbar.$.signin_bar).display, 'inline-block');
@@ -567,6 +574,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           assert.equal(getComputedStyle(accountbar.$.signedin_bar).display, 'none');
           destroy_test_user_account(hoodie).then(done);
         });
+
+        // Tap button to open dialog
+        var button = accountbar.$.signout_button;
+        button.fire('tap');
+
       });
 
       test('should allow you to change your password', function(done) {
@@ -578,9 +590,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         var new_password = 'pw_changed';
 
-        // Tap button to open dialog
-        var button = accountbar.$.changepassword_button;
-        button.fire('tap');
         var dialog = accountbar.$.changepassword_dialog;
         dialog.addEventListener('iron-overlay-opened', function dialog_opened_handler(event){
           dialog.removeEventListener(event.type, dialog_opened_handler);
@@ -593,8 +602,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           dialog.querySelector('[label="New Password"]').value = new_password;
           // Allow paper inputs to register their new values
           flush(function(){
-            // Submit form
-            dialog.querySelector('#changepassword_dialog_button').fire('tap');
+
             hoodie.account.on('changepassword', function(){
               // Verify the password has changed
               console.log('changepassword event completed');
@@ -610,25 +618,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               .then(function(){
                 console.log('destroyed test user account');
                 return done();
-              })
-              // Let the test time out if something above failed.
-              .fail(function(){
-                console.log('something failed, so timing out');
               });
+              // This is commented out for now because we're not sure it's needed.
+//               // Let the test time out if something above failed.
+//               .fail(function(){
+//                 console.log('something failed, so timing out');
+//               });
             });
+
+            // Submit form
+            dialog.querySelector('#changepassword_dialog_button').fire('tap');
+
           });
         });
+
+        // Tap button to open dialog
+        var button = accountbar.$.changepassword_button;
+        button.fire('tap');
+
       });
     
-      /* Commented out because the test does not work for some reason.
       test('should allow you to change your username', function(done) {
         // Change Username
 
         var new_username = 'test_changed';
 
-        // Tap button to open dialog
-        var button = accountbar.$.changeusername_button;
-        button.fire('tap');
         var dialog = accountbar.$.changeusername_dialog;
         dialog.addEventListener('iron-overlay-opened', function dialog_opened_handler(event){
           dialog.removeEventListener(event.type, dialog_opened_handler);
@@ -639,28 +653,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           // Verify that you can change your username
           dialog.querySelector('[label="New Username"]').value = new_username;
           dialog.querySelector('[label="Current Password"]').value = password;
+
           // Allow paper-inputs to register their new values
           flush(function(){
+
+            hoodie.account.on('changeusername', function(){
+              // Verify the username has changed
+              assert.equal(hoodie.account.username, new_username);
+              done();
+            });
+
             // Submit form
             dialog.querySelector('#changeusername_dialog_button').fire('tap');
             console.log('tapped changeusername_dialog_button');
-            hoodie.account.on('changeusername', function(){
-              console.log('changeusername event fired');
-              // Verify the username has changed
-              assert.equal(hoodie.account.username, new_username);
-              // Change username back to original value so future tests aren't confused.
-              hoodie.account.changeUsername(this.current_password, this.username)
-              .done(function(){
-                console.log('changed username back to original value');
-                destroy_test_user_account(hoodie).then(function(){
-                  done();
-                });
-              });
-            });
+
           });
+
         });
+
+        // Tap button to open dialog
+        var button = accountbar.$.changeusername_button;
+        button.fire('tap');
+
       });
-      */
     
     });
 
