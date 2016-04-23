@@ -52,7 +52,7 @@
     "gulp-uncss": "^1.0.5",
     "gulp-useref": "^3.0.7",
     "gulp-vulcanize": "^6.0.0",
-    "http-proxy-middleware": "0.12.0",
+    "http-proxy-middleware": "0.13.0",
     "jshint": "^2.9.2",
     "jshint-stylish": "^2.0.0",
     "merge-stream": "^1.0.0",
