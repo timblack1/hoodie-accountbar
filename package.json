@@ -50,7 +50,7 @@
     "gulp-size": "^2.0.0",
     "gulp-uglify": "^1.5.2",
     "gulp-uncss": "^1.0.1",
-    "gulp-useref": "^3.0.6",
+    "gulp-useref": "^3.0.8",
     "gulp-vulcanize": "^6.0.0",
     "http-proxy-middleware": "0.10.0",
     "jshint": "^2.9.2",
