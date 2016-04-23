@@ -327,8 +327,9 @@ Example:
       // TODO: Improve the look of the drop-down arrow by graphically connecting it to the "Sign in/up/out" button. #3
       // TODO: Make the dialogs submit when the enter key is pressed #4
       // TODO: Make the dialogs focus their first child paper-input #5
-      // TODO: Create this.email from somewhere to use in sending a new password #17
       attached:function(){
+
+        var thiz = this;
 
         // Declare the elements to show or hide using this.show_only_these_elements
         this.elements_to_show_or_hide = [
@@ -349,14 +350,23 @@ Example:
         // Set the default bar to show until we find out we need another
         this.show_only_these_elements('signup_bar');
 
-        this.hoodie = this.$.hoodie_service.hoodie;
-        this.username = this.hoodie.account.username;
-        // Subscribe to (listen for) Hoodie account events
-        this.hoodie.account.on('signup changeusername signin reauthenticated', this._handleUserAuthenticated.bind(this));
-        this.hoodie.account.on('signout', this._handleUserUnauthenticated.bind(this));
-        this.hoodie.on('account:error:unauthenticated remote:error:unauthenticated', this._handleUserAuthenticationError.bind(this));
-        // Check to see whether this user is authenticated
-        this.hoodie.account.authenticate().then(this._handleUserAuthenticated.bind(this), this._handleUserUnauthenticated.bind(this));
+        this.$.hoodie_service.addEventListener('hoodie-loaded', function hoodie_loaded(event) {
+          thiz.$.hoodie_service.removeEventListener(event.type, hoodie_loaded);
+
+          thiz.hoodie = thiz.$.hoodie_service.hoodie;
+          thiz.username = thiz.hoodie.account.username;
+          // Subscribe to (listen for) Hoodie account events
+          thiz.hoodie.account.on('signup changeusername signin reauthenticated', thiz._handleUserAuthenticated.bind(thiz));
+          thiz.hoodie.account.on('signout', thiz._handleUserUnauthenticated.bind(thiz));
+          thiz.hoodie.on('account:error:unauthenticated remote:error:unauthenticated', thiz._handleUserAuthenticationError.bind(thiz));
+          // Check to see whether this user is authenticated
+          if (thiz.hoodie.account.isSignedIn()){
+            thiz._handleUserAuthenticated.bind(thiz)();
+          } else {
+            thiz._handleUserUnauthenticated.bind(thiz)();
+          }
+        });
+
       },
       // Display the signup dialog
       signup:function(){
@@ -588,4 +598,5 @@ Example:
   </script>
 
 </dom-module>
+
 
