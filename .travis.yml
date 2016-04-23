@@ -26,7 +26,6 @@ addons:
       - g++-4.8
 script:
   - xvfb-run wct
-  - "npm test"
 after_success:
   - npm run semantic-release
 services:
