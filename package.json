@@ -35,7 +35,7 @@
     "glob": "^6.0.3",
     "gulp": "^3.9.0",
     "gulp-autoprefixer": "^3.0.2",
-    "gulp-cache": "^0.4.0",
+    "gulp-cache": "^0.4.3",
     "gulp-changed": "^1.0.0",
     "gulp-connect": "^2.3.1",
     "gulp-cssmin": "^0.1.7",
