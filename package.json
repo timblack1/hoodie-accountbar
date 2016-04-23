@@ -11,7 +11,7 @@
   "scripts": {
     "test": "wct",
     "start": "polyserve",
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post && gp.sh timblack1 hoodie-accountbar"
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post && gp.sh github.com timblack1 hoodie-accountbar"
   },
   "repository": {
     "type": "git",
