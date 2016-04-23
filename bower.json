@@ -12,7 +12,7 @@
     "accountbar"
   ],
   "main": "hoodie-accountbar.html",
-  "license": "MIT",
+  "license": "BSD-3-Clause-Clear",
   "homepage": "https://github.com/timblack1/hoodie-accountbar/",
   "ignore": [
     "/.*",
