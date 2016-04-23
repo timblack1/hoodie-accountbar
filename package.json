@@ -62,7 +62,7 @@
     "semantic-release": "^4.0.2",
     "url": "^0.11.0",
     "vulcanize": ">=1.14.4",
-    "web-component-tester": "^4.1.1"
+    "web-component-tester": "^4.2.2"
   },
   "engines": {
     "node": ">=5.10"
