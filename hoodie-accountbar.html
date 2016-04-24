@@ -402,6 +402,8 @@ Example:
             thiz.show_only_these_elements('signin_bar');
             thiz.username = '';    
             console.log('Signed out. Username is now: ' + thiz.hoodie.account.username);
+            // Presently this event is only for the tests
+            thiz.fire('signed-out');
           })
           .fail(function(error){
             console.log('Could not sign out: ', error);

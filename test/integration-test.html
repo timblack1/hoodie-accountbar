@@ -567,7 +567,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           Welcome message doesn't display
         */
 
-        hoodie.account.on('signout', function(){
+        accountbar.addEventListener('signed-out', function signed_out(event) {
+          accountbar.removeEventListener(event.type, signed_out);
           // Verify "Sign In" button displays
           assert.equal(getComputedStyle(accountbar.$.signin_bar).display, 'inline-block');
           // Verify that the signedin_bar (and so its welcome message) doesn't display
