@@ -132,7 +132,8 @@ Example:
     <!-- Dialogs for each menu button -->
 
     <paper-dialog id="signup_dialog" 
-      role="dialog" 
+      role="dialog"
+      with-backdrop="true"
       entry-animation="scale-up-animation"
       exit-animation="fade-out-animation">
       <div class="layout vertical">
@@ -164,6 +165,7 @@ Example:
 
     <paper-dialog id="signin_dialog"
       role="dialog" 
+      with-backdrop="true"
       entry-animation="scale-up-animation"
       exit-animation="fade-out-animation">
       <div class="layout vertical">
@@ -190,6 +192,7 @@ Example:
 
     <paper-dialog id="forgotpassword_dialog"
       role="dialog" 
+      with-backdrop="true"
       entry-animation="scale-up-animation"
       exit-animation="fade-out-animation">
       <div class="layout vertical">
@@ -211,6 +214,7 @@ Example:
 
     <paper-dialog id="changeusername_dialog"
       role="dialog" 
+      with-backdrop="true"
       entry-animation="scale-up-animation"
       exit-animation="fade-out-animation">
       <div class="layout vertical">
@@ -237,6 +241,7 @@ Example:
 
     <paper-dialog id="changepassword_dialog"
       role="dialog" 
+      with-backdrop="true"
       entry-animation="scale-up-animation"
       exit-animation="fade-out-animation">
       <div class="layout vertical">
@@ -264,7 +269,7 @@ Example:
 
     <paper-dialog id="data_destruction_dialog"
       role="dialog"
-      backdrop
+      with-backdrop="true"
       entry-animation="scale-up-animation"
       exit-animation="fade-out-animation">
       <div>
@@ -322,6 +327,7 @@ Example:
           type: String
         }
       },
+      
       // define element prototype here
       // TODO: Reply to https://twitter.com/addyosmani/status/452848531125313536
       // TODO: Improve the look of the drop-down arrow by graphically connecting it to the "Sign in/up/out" button. #3
@@ -600,5 +606,4 @@ Example:
   </script>
 
 </dom-module>
-
 
