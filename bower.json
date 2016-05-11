@@ -20,13 +20,13 @@
     "/demo/"
   ],
   "dependencies": {
-    "hoodie-service": "latest",
     "iron-elements": "PolymerElements/iron-elements#^1.0.0",
     "neon-elements": "PolymerElements/neon-elements#^1.0.0",
     "paper-elements": "PolymerElements/paper-elements#^1.0.1",
     "polymer": "Polymer/polymer#^1.2.0"
   },
   "devDependencies": {
+    "hoodie-service": "latest",
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
     "web-component-tester": "^4.2.2",
     "test-fixture": "PolymerElements/test-fixture#^1.0.0"

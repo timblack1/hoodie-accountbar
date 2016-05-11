@@ -12,21 +12,27 @@ Online docs & demo are at http://timblack1.github.io/hoodie-accountbar/.
 # Installation
 
     $ bower install --save hoodie-accountbar
+    $ # Optionally, install <hoodie-service> to provide the `hoodie` object
+    $ bower install --save hoodie-service
 
 # Usage
 
-Import hoodie-accountbar into the `<head>` of your Polymer element or `elements.html` file:
+Import hoodie-accountbar (and optionally, hoodie-service) into the `<head>` 
+of your Polymer element or `elements.html` file:
 
 ```html
     <head>
+      <link rel="import" href="../../hoodie-service/hoodie-service.html">
       <link rel="import" href="../../hoodie-accountbar/hoodie-accountbar.html">
     </head>
 ```
 
-Place the element where you would like it to appear in the context of your app:
+Place the hoodie-accountbar (and optionally, hoodie-service) element where you 
+would like it to appear in the context of your app:
 
 ```html
-    <hoodie-accountbar></hoodie-accountbar>
+    <hoodie-service hoodie="{{hoodie}}"></hoodie-service>
+    <hoodie-accountbar hoodie="{{hoodie}}"></hoodie-accountbar>
 ```
 
 Use Hoodie in your code:
@@ -37,7 +43,6 @@ Use Hoodie in your code:
       Polymer({
         attached:function(){
           this.async(function(){
-            this.hoodie = document.querySelector('hoodie-accountbar').hoodie;
             var thiz = this;
             // Get selected_colors from a user preference
             this.hoodie.store.find('preferences', 'selected-colors')
@@ -58,7 +63,7 @@ Run the following commands to set up a development environment to improve hoodie
     $ npm install -g polyserve && npm install && bower install
     $ npm start
 
-Navigate to [http://localhost:3000/components/hoodie-accountbar/](http://localhost:3000/components/hoodie-accountbar/)
+Navigate to [http://localhost:8080/components/hoodie-accountbar/](http://localhost:8080/components/hoodie-accountbar/)
 to see the component's docs and demo.
 
 # Integration tests

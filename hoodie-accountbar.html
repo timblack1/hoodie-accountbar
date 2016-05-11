@@ -20,18 +20,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../neon-animation/animations/scale-up-animation.html">
 <link rel="import" href="../neon-animation/animations/fade-out-animation.html">
 
-<link rel="import" href="../hoodie-service/hoodie-service.html">
-
 <!--
 A Polymer element providing an accountbar to manage user account actions in Hoodie.
 
 Example:
 
+    <hoodie-service hoodie="{{hoodie}}"></hoodie-service>
     <hoodie-accountbar hoodie="{{hoodie}}"></hoodie-accountbar>
+
+Note that you have to provide the `hoodie` object from outside this element,
+which the example above does by using the `hoodie-service` element.
 
 @demo demo/index.html
 -->
-<dom-module id="hoodie-accountbar" hoodie={{hoodie}} mode="{{mode}}">
+<dom-module id="hoodie-accountbar" hoodie="{{hoodie}}">
 
   <template>
 
@@ -57,8 +59,6 @@ Example:
         margin-right: 0.3em;
       }
     </style>
-
-    <hoodie-service id="hoodie_service" hoodie={{hoodie}} mode="{{mode}}"></hoodie-service>
 
     <!-- Account bar button and menu for each main authentication mode -->
 
@@ -295,15 +295,14 @@ Example:
     Polymer({
       is: 'hoodie-accountbar',
       properties:{
-        mode: {
-          type: String,
-          // Set to 'test' to stub Hoodie for unit tests
-          value: 'normal',
-          notify: true
-        },
         hoodie: {
           type: Object,
-          notify: true
+          notify: true,
+          observer: '_hoodieInitialized'
+        },
+        hoodie_has_initialized: {
+          type: Boolean,
+          value: false
         },
         data_destruction_button_text: {
           type: String
@@ -327,7 +326,7 @@ Example:
           type: String
         }
       },
-      
+
       // define element prototype here
       // TODO: Reply to https://twitter.com/addyosmani/status/452848531125313536
       // TODO: Improve the look of the drop-down arrow by graphically connecting it to the "Sign in/up/out" button. #3
@@ -356,24 +355,36 @@ Example:
         // Set the default bar to show until we find out we need another
         this.show_only_these_elements('signup_bar');
 
-        this.$.hoodie_service.addEventListener('hoodie-loaded', function hoodie_loaded(event) {
-          thiz.$.hoodie_service.removeEventListener(event.type, hoodie_loaded);
+      },
 
-          thiz.hoodie = thiz.$.hoodie_service.hoodie;
-          thiz.username = thiz.hoodie.account.username;
+      /**
+       * Hoodie has initialized, so get values out of Hoodie which we need,
+       * and set up event listeners
+       */
+      _hoodieInitialized: function(){
+
+        if (
+          !this.hoodie_has_initialized &&
+          this.hoodie !== '{{hoodie}}'
+        ){
+          this.hoodie_has_initialized = true;
+          this.username = this.hoodie.account.username;
+
           // Subscribe to (listen for) Hoodie account events
-          thiz.hoodie.account.on('signup changeusername signin reauthenticated', thiz._handleUserAuthenticated.bind(thiz));
-          thiz.hoodie.account.on('signout', thiz._handleUserUnauthenticated.bind(thiz));
-          thiz.hoodie.on('account:error:unauthenticated remote:error:unauthenticated', thiz._handleUserAuthenticationError.bind(thiz));
+          this.hoodie.account.on('signup changeusername signin reauthenticated', this._handleUserAuthenticated.bind(this));
+          this.hoodie.account.on('signout', this._handleUserUnauthenticated.bind(this));
+          this.hoodie.on('account:error:unauthenticated remote:error:unauthenticated', this._handleUserAuthenticationError.bind(this));
+
           // Check to see whether this user is authenticated
-          if (thiz.hoodie.account.isSignedIn()){
-            thiz._handleUserAuthenticated.bind(thiz)();
+          if (this.hoodie.account.isSignedIn()){
+            this._handleUserAuthenticated.bind(this)();
           } else {
-            thiz._handleUserUnauthenticated.bind(thiz)();
+            this._handleUserUnauthenticated.bind(this)();
           }
-        });
+        }
 
       },
+
       // Display the signup dialog
       signup:function(){
         this.hide_menus();

@@ -22,6 +22,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <!-- Is this needed anymore? -->
     <link rel="import" href="../../test-fixture/test-fixture.html">
 
+    <link rel="import" href="../../hoodie-service/hoodie-service.html">
     <link rel="import" href="../hoodie-accountbar.html">
 
   </head>
@@ -29,7 +30,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <test-fixture id="integration">
       <template>
-        <hoodie-accountbar mode="test"></hoodie-accountbar>
+        <hoodie-service id="hoodie_service" mode="test" hoodie="{{hoodie}}"></hoodie-service>
+        <hoodie-accountbar hoodie="{{hoodie}}"></hoodie-accountbar>
       </template>
     </test-fixture>
 
@@ -105,14 +107,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     suite('Signed-out state, browser has never signed in', function(){
 
       setup('Before each test, destroy test user account and delete localstorage record', function(done){
-        accountbar = fixture('integration');
-        hoodie = accountbar.hoodie;
+        accountbar = fixture('integration')[1];
+        hoodie = accountbar.hoodie = fixture('integration')[0].hoodie;
+        accountbar.hoodie = hoodie;
         destroy_test_user_account(hoodie).then(done);
       });
 
       teardown('After each test, destroy test user account and delete localstorage record', function(done){
-        accountbar = fixture('integration');
-        hoodie = accountbar.hoodie;
+        accountbar = fixture('integration')[1];
+        hoodie = accountbar.hoodie = fixture('integration')[0].hoodie;
+        accountbar.hoodie = hoodie;
         destroy_test_user_account(hoodie).then(done);
       });
 
@@ -172,8 +176,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         
             // Verify the username is displayed
             assert.equal(accountbar.$.username_span.textContent, username);
-          
+
           });
+
         });
 
       });
@@ -223,8 +228,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     suite('Signed-out state, browser has signed in before', function(){
 
       setup('Before each test, create test user account, signout, and set localstorage record that this browser has signed in', function(done){
-        accountbar = fixture('integration');
-        hoodie = accountbar.hoodie;
+        accountbar = fixture('integration')[1];
+        hoodie = accountbar.hoodie = fixture('integration')[0].hoodie;
+        accountbar.hoodie = hoodie;
         create_test_user_account(hoodie).then(function(){
           // Signout in case a user is signed in
           return hoodie.account.signOut()
@@ -237,8 +243,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });
 
       teardown('After each test, destroy test user account and delete localstorage record', function(done){
-        accountbar = fixture('integration');
-        hoodie = accountbar.hoodie;
+        accountbar = fixture('integration')[1];
+        hoodie = accountbar.hoodie = fixture('integration')[0].hoodie;
+        accountbar.hoodie = hoodie;
         destroy_test_user_account(hoodie).then(done);
       });
 
@@ -251,8 +258,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     suite('Signed-out state, browser has or has not signed in', function(){
 
       setup('Before each test, create test user account and signout', function signout(done){
-        accountbar = fixture('integration');
-        hoodie = accountbar.hoodie;
+        accountbar = fixture('integration')[1];
+        hoodie = accountbar.hoodie = fixture('integration')[0].hoodie;
+        accountbar.hoodie = hoodie;
         create_test_user_account(hoodie).then(function(){
           // Signout in case a user is signed in
           return hoodie.account.signOut()
@@ -269,8 +277,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });
 
       teardown('After each test, destroy test user account and delete localstorage record', function(done){
-        accountbar = fixture('integration');
-        hoodie = accountbar.hoodie;
+        accountbar = fixture('integration')[1];
+        hoodie = accountbar.hoodie = fixture('integration')[0].hoodie;
+        accountbar.hoodie = hoodie;
         destroy_test_user_account(hoodie).then(done);
       });
 
@@ -332,8 +341,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     suite('Signed-out state', function(){
 
       setup('Before each test, create test user account and sign out', function(done){
-        accountbar = fixture('integration');
-        hoodie = accountbar.hoodie;
+        accountbar = fixture('integration')[1];
+        hoodie = accountbar.hoodie = fixture('integration')[0].hoodie;
+        accountbar.hoodie = hoodie;
         create_test_user_account(hoodie).then(function(){
           // Signout in case a user is signed in
           return hoodie.account.signOut()
@@ -345,8 +355,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });
 
       teardown('After each test, destroy test user account and delete localstorage record', function(done){
-        accountbar = fixture('integration');
-        hoodie = accountbar.hoodie;
+        accountbar = fixture('integration')[1];
+        hoodie = accountbar.hoodie = fixture('integration')[0].hoodie;
+        accountbar.hoodie = hoodie;
         destroy_test_user_account(hoodie).then(done);
       });
 
@@ -525,8 +536,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     suite('Signed-in state', function(){
       
       setup('Before each test, create test user account and sign in', function(done){
-        accountbar = fixture('integration');
-        hoodie = accountbar.hoodie;
+        accountbar = fixture('integration')[1];
+        hoodie = accountbar.hoodie = fixture('integration')[0].hoodie;
+        accountbar.hoodie = hoodie;
         create_test_user_account(hoodie).then(function(){
           done();
         });
