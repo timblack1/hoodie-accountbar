@@ -58,7 +58,7 @@
     "merge-stream": "^1.0.0",
     "opn": "^4.0.1",
     "require-dir": "^0.3.0",
-    "run-sequence": "^1.0.2",
+    "run-sequence": "^1.2.2",
     "semantic-release": "^4.0.2",
     "url": "^0.11.0",
     "vulcanize": ">=1.14.6",
