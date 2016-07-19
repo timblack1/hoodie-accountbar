@@ -107,9 +107,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     suite('Signed-out state, browser has never signed in', function(){
 
       setup('Before each test, destroy test user account and delete localstorage record', function(done){
+
         accountbar = fixture('integration')[1];
-        hoodie = fixture('integration')[0].hoodie;
+
+        // Note:  This is a hackish workaround for the fact that without this line,
+        //  accountbar.hoodie is equal to the string '{{hoodie}}', rather than the 
+        //  data-bound object which it should be.
+
+        // Note https://www.polymer-project.org/1.0/docs/devguide/registering-elements.html#initialization-timing-for-siblings
+        // says, "For accessing sibling elements when an element initializes, 
+        // you can call async from inside the attached callback."
+
+        accountbar.hoodie = hoodie;
+
         destroy_test_user_account(hoodie).then(done);
+
       });
 
       teardown('After each test, destroy test user account and delete localstorage record', function(done){
