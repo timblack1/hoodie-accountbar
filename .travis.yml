@@ -19,10 +19,10 @@ addons:
   firefox: latest
   apt:
     sources:
-      - google-chrome
+#      - google-chrome
       - ubuntu-toolchain-r-test
     packages:
-      - google-chrome-stable
+#      - google-chrome-stable
       - g++-4.8
 script:
   - xvfb-run wct
