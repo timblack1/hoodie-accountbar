@@ -54,7 +54,7 @@
     "gulp-vulcanize": "^6.0.0",
     "http-proxy-middleware": "0.15.0",
     "jshint": "^2.9.2",
-    "jshint-stylish": "^2.0.0",
+    "jshint-stylish": "^2.2.1",
     "merge-stream": "^1.0.0",
     "opn": "^4.0.1",
     "require-dir": "^0.3.0",
