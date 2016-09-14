@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "apache-server-configs": "^2.7.1",
-    "browser-sync": "^2.12.7",
+    "browser-sync": "^2.16.0",
     "browserify": "~13.0.0",
     "del": "^2.0.2",
     "glob": "^7.0.0",
