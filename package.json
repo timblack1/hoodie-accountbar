@@ -34,7 +34,7 @@
     "del": "^2.0.2",
     "glob": "^7.0.0",
     "gulp": "^3.9.1",
-    "gulp-autoprefixer": "^3.0.2",
+    "gulp-autoprefixer": "^4.0.0",
     "gulp-cache": "^0.4.2",
     "gulp-changed": "^1.0.0",
     "gulp-connect": "^4.0.0",
