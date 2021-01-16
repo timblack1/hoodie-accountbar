@@ -41,7 +41,7 @@
     "gulp-cssmin": "^0.1.7",
     "gulp-flatten": "0.2.0",
     "gulp-if": "^2.0.0",
-    "gulp-imagemin": "^3.0.0",
+    "gulp-imagemin": "^3.0.3",
     "gulp-jshint": "^2.0.0",
     "gulp-load-plugins": "^1.2.1",
     "gulp-minify-html": "^1.0.6",
