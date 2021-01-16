@@ -32,7 +32,7 @@
     "browser-sync": "^2.12.7",
     "browserify": "~13.0.0",
     "del": "^2.0.2",
-    "glob": "^7.0.0",
+    "glob": "^7.1.2",
     "gulp": "^3.9.1",
     "gulp-autoprefixer": "^3.0.2",
     "gulp-cache": "^0.4.2",
