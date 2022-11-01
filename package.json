@@ -31,7 +31,7 @@
     "apache-server-configs": "^2.7.1",
     "browser-sync": "^2.27.10",
     "browserify": "~13.0.0",
-    "del": "^2.0.2",
+    "del": "^2.2.1",
     "glob": "^7.0.0",
     "gulp": "^4.0.2",
     "gulp-autoprefixer": "^8.0.0",
