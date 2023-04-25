@@ -59,7 +59,7 @@
     "opn": "^5.0.0",
     "require-dir": "^0.3.0",
     "run-sequence": "^1.0.2",
-    "semantic-release": "^19.0.3",
+    "semantic-release": "^21.0.1",
     "url": "^0.11.0",
     "vulcanize": ">=1.15.4",
     "web-component-tester": "^6.9.2"
