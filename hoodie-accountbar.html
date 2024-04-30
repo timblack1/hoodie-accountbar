@@ -365,7 +365,8 @@ which the example above does by using the `hoodie-service` element.
 
         if (
           !this.hoodie_has_initialized &&
-          this.hoodie !== '{{hoodie}}'
+          this.hoodie !== '{{hoodie}}' &&
+          typeof this.hoodie.account.signIn !== 'undefined'
         ){
           this.hoodie_has_initialized = true;
           this.username = this.hoodie.account.username;
